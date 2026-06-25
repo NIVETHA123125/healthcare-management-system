@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareGrid Healthcare - Your Health, Our Priority</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Fonts -->
+    <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Main Style -->
+    <link rel="stylesheet" th:href="@{/css/style.css(v=3)}">
+    <style>
+        :root {
+            --primary-medical: #2E8B57;
+            --primary-accent: #5F9EA0;
+            --medical-dark: #2C2C2C;
+            --medical-light: #F8F7F3;
+            --body-font: 'General Sans', sans-serif;
+            --header-font: 'Space Grotesk', sans-serif;
+        }
+
+        body {
+            font-family: var(--body-font);
+            color: #334155;
+            background-color: #ffffff;
+            scroll-behavior: smooth;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--header-font);
+            font-weight: 700;
+            color: var(--medical-dark);
+        }
+
+        /* Sticky Navbar */
+        .navbar {
+            backdrop-filter: blur(10px);
+            background-color: rgba(255, 255, 255, 0.9);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand {
+            font-family: var(--header-font);
+            font-weight: 700;
+            font-size: 24px;
+            color: var(--primary-medical) !important;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-dot {
+            width: 12px;
+            height: 12px;
+            background-color: var(--primary-accent);
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .nav-link {
+            font-weight: 500;
+            color: #475569 !important;
+            transition: color 0.2s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--primary-medical) !important;
+        }
+
+
+
+        /* Hero Section */
+        .hero-section {
+            padding: 120px 0 80px 0;
+            background-color: var(--medical-light);
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .hero-title {
+            font-size: 48px;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            color: var(--medical-dark);
+        }
+
+        .hero-subtitle {
+            font-size: 16.5px;
+            color: #555555;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .hero-img-wrapper {
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border: 1px solid #dee2e6;
+        }
+
+        .hero-img {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+        }
+
+        /* Cards and Sections */
+        .section-title {
+            font-size: 32px;
+            text-align: center;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: #666666;
+            max-width: 600px;
+            margin: 0 auto 50px auto;
+            font-size: 15px;
+        }
+
+        .medical-card {
+            background-color: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 28px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+            height: 100%;
+        }
+
+        .medical-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border-color: var(--primary-accent);
+        }
+
+        .card-icon-box {
+            width: 50px;
+            height: 50px;
+            background-color: rgba(46, 139, 87, 0.08);
+            color: var(--primary-medical);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* Doctor Cards */
+        .doctor-card {
+            overflow: hidden;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+            background-color: #ffffff;
+        }
+
+        .doctor-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border-color: var(--primary-accent);
+        }
+
+        .doctor-img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+        }
+
+        .doctor-info {
+            padding: 24px;
+        }
+
+        .doctor-spec {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--primary-medical);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .doctor-exp {
+            font-size: 14px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        /* Stats Section */
+        .stats-section {
+            background-color: var(--medical-dark);
+            color: #ffffff;
+            padding: 80px 0;
+        }
+
+        .stat-box {
+            text-align: center;
+        }
+
+        .stat-num {
+            font-size: 48px;
+            font-weight: 800;
+            color: var(--primary-accent);
+            margin-bottom: 8px;
+            font-family: var(--header-font);
+        }
+
+        .stat-label {
+            font-size: 15px;
+            opacity: 0.8;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Why Choose Us Section */
+        .why-choose-section {
+            padding: 100px 0;
+            background-color: #f8fafc;
+        }
+
+        /* Testimonials */
+        .testimonial-card {
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 32px;
+            border: 1px solid #dee2e6;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+            height: 100%;
+        }
+
+        .testimonial-stars {
+            color: #ffc107;
+            margin-bottom: 16px;
+            font-size: 18px;
+        }
+
+        .testimonial-text {
+            font-style: italic;
+            color: #475569;
+            margin-bottom: 24px;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .author-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background-color: rgba(46, 139, 87, 0.1);
+            color: var(--primary-medical);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        /* Contact Section */
+        .contact-section {
+            padding: 100px 0;
+        }
+
+        .map-placeholder {
+            width: 100%;
+            height: 320px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f1f5f9;
+            color: #64748b;
+        }
+
+        /* Footer */
+        .main-footer {
+            background-color: #1a1a1a;
+            color: #94a3b8;
+            padding: 80px 0 30px 0;
+        }
+
+        .main-footer h4 {
+            color: #ffffff;
+            margin-bottom: 24px;
+            font-size: 18px;
+        }
+
+        .footer-links-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .footer-links-list li {
+            margin-bottom: 12px;
+        }
+
+        .footer-links-list a {
+            color: #94a3b8;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .footer-links-list a:hover {
+            color: #ffffff;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .social-icon {
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            transition: background-color 0.2s ease;
+        }
+
+        .social-icon:hover {
+            background-color: var(--primary-medical);
+            color: #ffffff;
+        }
+
+        .btn-medical {
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-weight: 600;
+            transition: all 0.15s ease;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sticky Navigation Bar -->
+    <nav class="navbar navbar-expand-lg sticky-top py-3">
+        <div class="container">
+            <a class="navbar-brand" th:href="@{/}">
+                <span class="brand-dot"></span> CareGrid
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="mainNavbar">
+                <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-3">
+                    <li class="nav-item"><a class="nav-link" href="#home">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#care-process">How It Works</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#why-choose-us">About Us</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+                </ul>
+                <div class="d-flex">
+                    <a th:href="@{/login}" class="btn btn-outline-primary btn-medical">Portal Login</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section" id="home">
+        <div class="container">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-6">
+                    <h1 class="hero-title">Your Health,<br>Our Priority</h1>
+                    <p class="hero-subtitle">Book appointments, manage patient records, and receive quality healthcare with ease. CareGrid bridges the gap between clinicians and patients with our next-generation digital healthcare system.</p>
+                    <div class="d-flex gap-3">
+                        <a th:href="@{/register}" class="btn btn-primary btn-medical">Get Started</a>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="hero-img-wrapper">
+                        <!-- High-Quality Unsplash Medical Stock Image -->
+                        <img src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=800&h=550" alt="CareGrid Modern Clinic Lobby" class="hero-img">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="py-5 my-5" id="services">
+        <div class="container">
+            <h2 class="section-title">Comprehensive Clinic Services</h2>
+            <p class="section-subtitle">A fully integrated hospital workspace providing digital self-service solutions and medical workflow tools.</p>
+            <div class="row g-4">
+                <!-- Service 1: Patient Management -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="medical-card">
+                        <div class="card-icon-box"><i class="bi bi-people-fill"></i></div>
+                        <h3>Patient Management</h3>
+                        <p>Complete demographic onboarding and digital clinical record indexing for outpatient clinics.</p>
+                    </div>
+                </div>
+                <!-- Service 2: Appointment Scheduling -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="medical-card">
+                        <div class="card-icon-box"><i class="bi bi-calendar-event-fill"></i></div>
+                        <h3>Appointment Scheduling</h3>
+                        <p>Self-service booking portals for patients to lock time slots directly with general practitioners.</p>
+                    </div>
+                </div>
+                <!-- Service 3: Consultation History -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="medical-card">
+                        <div class="card-icon-box"><i class="bi bi-journal-medical"></i></div>
+                        <h3>Consultation History</h3>
+                        <p>Access full diagnostic outputs, physician assessment sheets, and active clinical worksheets.</p>
+                    </div>
+                </div>
+                <!-- Service 4: Secure Medical Records -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="medical-card">
+                        <div class="card-icon-box"><i class="bi bi-shield-lock-fill"></i></div>
+                        <h3>Secure Medical Records</h3>
+                        <p>Enforced role-based constraints guarding patient charts from administrative intrusions.</p>
+                    </div>
+                </div>
+                <!-- Service 5: Doctor Management -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="medical-card">
+                        <div class="card-icon-box"><i class="bi bi-person-workspace"></i></div>
+                        <h3>Doctor Management</h3>
+                        <p>Monitor physician registries, working hours, and clinic specializations across departments.</p>
+                    </div>
+                </div>
+                <!-- Service 6: Emergency Support -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="medical-card">
+                        <div class="card-icon-box"><i class="bi bi-telephone-outbound-fill"></i></div>
+                        <h3>Emergency Support</h3>
+                        <p>Direct integration with medical triage phone lists for critical outpatient care.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Statistics Section -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-6 col-lg-3">
+                    <div class="stat-box">
+                        <div class="stat-num">10,000+</div>
+                        <div class="stat-label">Patients Served</div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="stat-box">
+                        <div class="stat-num">99%</div>
+                        <div class="stat-label">Patient Satisfaction</div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="stat-box">
+                        <div class="stat-num">8,500+</div>
+                        <div class="stat-label">Bookings Completed</div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="stat-box">
+                        <div class="stat-num">6+</div>
+                        <div class="stat-label">Clinic Departments</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Patient Care Process Section -->
+    <section class="py-5 my-5" id="care-process">
+        <div class="container">
+            <h2 class="section-title">Our Patient Care Process</h2>
+            <p class="section-subtitle">From registration to active support, we ensure a seamless and high-quality healthcare experience.</p>
+            <div class="row g-4 justify-content-center">
+                <!-- Step 1 -->
+                <div class="col-md-3">
+                    <div class="medical-card text-center">
+                        <div class="card-icon-box mx-auto"><span class="fw-bold fs-4">1</span></div>
+                        <h3>Register Account</h3>
+                        <p>Create a secure personal health account in less than two minutes to manage your details online.</p>
+                    </div>
+                </div>
+                <!-- Step 2 -->
+                <div class="col-md-3">
+                    <div class="medical-card text-center">
+                        <div class="card-icon-box mx-auto"><span class="fw-bold fs-4">2</span></div>
+                        <h3>Book Appointment</h3>
+                        <p>Choose your preferred date, department, and available time slot from our real-time portal scheduler.</p>
+                    </div>
+                </div>
+                <!-- Step 3 -->
+                <div class="col-md-3">
+                    <div class="medical-card text-center">
+                        <div class="card-icon-box mx-auto"><span class="fw-bold fs-4">3</span></div>
+                        <h3>Clinical Care</h3>
+                        <p>Meet our experienced clinical professionals for diagnostic assessments and tailored medical advice.</p>
+                    </div>
+                </div>
+                <!-- Step 4 -->
+                <div class="col-md-3">
+                    <div class="medical-card text-center">
+                        <div class="card-icon-box mx-auto"><span class="fw-bold fs-4">4</span></div>
+                        <h3>Access Records</h3>
+                        <p>Instantly retrieve prescriptions, access active records, and view/print payment invoices anytime.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Choose Us Section -->
+    <section class="why-choose-section" id="why-choose-us">
+        <div class="container">
+            <h2 class="section-title">Why Patients Trust CareGrid</h2>
+            <p class="section-subtitle">We design clinical workflows around patient care, accuracy, and clear billing.</p>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="medical-card">
+                        <div class="card-icon-box bg-primary text-white"><i class="bi bi-heart-pulse-fill"></i></div>
+                        <h3>Trusted Specialists</h3>
+                        <p>Our clinical staff are board-certified and hold years of diagnostic hospital experience.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="medical-card">
+                        <div class="card-icon-box bg-info text-white"><i class="bi bi-shield-check"></i></div>
+                        <h3>Secure Health Records</h3>
+                        <p>Clinical charts are encrypted and isolated under strict role-based logins.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="medical-card">
+                        <div class="card-icon-box bg-success text-white"><i class="bi bi-speedometer2"></i></div>
+                        <h3>Fast Appointment Locks</h3>
+                        <p>Lock your time slot within 60 seconds. No call queues or receptionist delays.</p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="medical-card">
+                        <div class="card-icon-box bg-warning text-dark"><i class="bi bi-cpu-fill"></i></div>
+                        <h3>Modern Technology</h3>
+                        <p>Flat modular medical dashboards allowing patients to print invoices and review prescription logs immediately.</p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="medical-card">
+                        <div class="card-icon-box bg-danger text-white"><i class="bi bi-telephone-fill"></i></div>
+                        <h3>24/7 Consultation Support</h3>
+                        <p>Dedicated medical phone response hotlines staffed by clinical nurses for outpatient guidance.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Contact Section -->
+    <section class="py-5" id="contact">
+        <div class="container">
+            <h2 class="section-title">Get in Touch</h2>
+            <p class="section-subtitle">Reach out to our clinical reception desk for assistance or visits directions.</p>
+            <div class="row g-5 align-items-center">
+                <div class="col-lg-5">
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        <div class="card-icon-box mb-0"><i class="bi bi-telephone-fill"></i></div>
+                        <div>
+                            <span class="text-muted text-uppercase font-monospace" style="font-size: 11px;">Call Center</span>
+                            <h4>+1 (555) 019-2834</h4>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        <div class="card-icon-box mb-0"><i class="bi bi-envelope-fill"></i></div>
+                        <div>
+                            <span class="text-muted text-uppercase font-monospace" style="font-size: 11px;">Email Support</span>
+                            <h4>support@caregrid.com</h4>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        <div class="card-icon-box mb-0"><i class="bi bi-geo-alt-fill"></i></div>
+                        <div>
+                            <span class="text-muted text-uppercase font-monospace" style="font-size: 11px;">Clinic Location</span>
+                            <h4>123 Care Street, Medical Block 4B</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <div class="map-placeholder">
+                        <div class="text-center p-4">
+                            <i class="bi bi-map-fill fs-1 text-primary mb-3 d-block"></i>
+                            <h5>Interactive Maps API Placeholder</h5>
+                            <small class="text-muted">123 Care Street, Medical District, City Center</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="row g-4 mb-5">
+                <div class="col-lg-4">
+                    <a class="navbar-brand text-white mb-3 d-inline-flex align-items-center gap-2" href="#">
+                        <span class="brand-dot"></span> CareGrid
+                    </a>
+                    <p class="mt-3">A modern digital hospital workspace offering patient registration, online scheduling, diagnostic summaries, and invoicing controls.</p>
+                    <div class="social-icons">
+                        <a href="#" class="social-icon"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="social-icon"><i class="bi bi-twitter-x"></i></a>
+                        <a href="#" class="social-icon"><i class="bi bi-instagram"></i></a>
+                        <a href="#" class="social-icon"><i class="bi bi-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-4 col-lg-2 offset-lg-2">
+                    <h4>Quick Links</h4>
+                    <ul class="footer-links-list">
+                        <li><a href="#home">Home</a></li>
+                        <li><a href="#services">Services</a></li>
+                        <li><a href="#care-process">How It Works</a></li>
+                        <li><a href="#why-choose-us">About Us</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4 col-lg-2">
+                    <h4>Services</h4>
+                    <ul class="footer-links-list">
+                        <li><a href="#services">Outpatient Checkups</a></li>
+                        <li><a href="#services">Pediatrics Care</a></li>
+                        <li><a href="#services">Cardiology Tests</a></li>
+                        <li><a href="#services">Medical Billing</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4 col-lg-2">
+                    <h4>Support hours</h4>
+                    <p class="text-white mb-1">General Office:</p>
+                    <p class="small mb-3">Mon - Sat: 9am - 8pm</p>
+                    <p class="text-white mb-1">Emergency Triage:</p>
+                    <p class="small">24 Hours / 7 Days</p>
+                </div>
+            </div>
+            <div class="border-top border-secondary pt-4 text-center text-md-start d-md-flex justify-content-between fs-6">
+                <p class="mb-0">&copy; 2026 CareGrid Healthcare System. All rights reserved.</p>
+                <p class="mb-0 text-muted mt-2 mt-md-0">Secure SSL portal verified.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

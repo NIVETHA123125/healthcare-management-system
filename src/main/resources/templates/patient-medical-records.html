@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(content=~{::#patient-records-content}, headerTitle='My Medical Records')}">
+<body>
+    <div id="patient-records-content">
+        <!-- Header Panel -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-clipboard2-pulse-fill text-primary fs-5"></i>
+                <h4 class="mb-0 fs-5 fw-bold" style="text-transform: none; color: var(--medical-dark);">My Consultations & Diagnostic Logs</h4>
+            </div>
+        </div>
+
+        <!-- Table Card -->
+        <div class="card border-0 shadow-sm p-0 overflow-hidden">
+            <div class="px-4 py-3 border-bottom border-light bg-light d-flex align-items-center gap-2">
+                <i class="bi bi-prescription text-primary"></i>
+                <span class="text-uppercase fw-bold fs-7 text-muted tracking-wider">Clinical Records</span>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Consulting Doctor</th>
+                            <th>Diagnosis</th>
+                            <th>Prescription Worksheets</th>
+                            <th>Physician Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="cons : ${consultations}">
+                            <td class="font-mono text-muted small" th:text="${#temporals.format(cons.createdDate, 'yyyy-MM-dd hh:mm a')}">2026-06-25 10:00 AM</td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="user-avatar-circle" style="width: 28px; height: 28px; font-size: 11px;" th:text="${#strings.substring(cons.doctor.fullName, 0, 1)}">D</div>
+                                    <span class="fw-bold" th:text="${'Dr. ' + cons.doctor.fullName}">Dr. Shankar R</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 rounded-pill" th:text="${cons.diagnosis}">Diagnosis</span>
+                            </td>
+                            <td class="font-mono text-dark small" th:text="${cons.prescription}">Medicines</td>
+                            <td class="text-muted small" th:text="${cons.notes}">Checkup details</td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(consultations)}">
+                            <td colspan="5" class="text-center py-5">
+                                <i class="bi bi-clipboard-x fs-1 text-muted mb-3 d-block"></i>
+                                <p class="text-muted mb-0">No diagnostic consultation reports found in your record yet.</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

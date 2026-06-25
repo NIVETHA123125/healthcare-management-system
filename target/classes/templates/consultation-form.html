@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(content=~{::#consultation-form-content}, headerTitle='Medical Assessment')}">
+<body>
+    <div id="consultation-form-content">
+        <div class="card border-0 shadow-sm max-width-800 mx-auto" style="max-width: 800px;">
+            <div class="d-flex align-items-center gap-2 border-bottom border-light pb-3 mb-4">
+                <i class="bi bi-heart-pulse-fill text-primary fs-4"></i>
+                <h3 class="mb-0 fs-5 fw-bold" style="text-transform: none; color: var(--medical-dark);">Record Consultation Findings</h3>
+            </div>
+            
+            <!-- Patient Case Metadata Summary Card -->
+            <div class="p-3 mb-4 rounded border border-primary-subtle bg-primary-subtle bg-opacity-10">
+                <span class="text-primary text-uppercase fw-bold fs-7 tracking-wider d-block mb-2">Patient Case Metadata</span>
+                <h4 class="fw-bold mb-3" style="text-transform: none; color: var(--medical-dark);" th:text="${appointment.patient.fullName}">Patient Name</h4>
+                <div class="row g-3">
+                    <div class="col-sm-4">
+                        <span class="text-muted small d-block">Age / DOB</span>
+                        <span class="fw-semibold font-mono" th:text="${appointment.patient.dob}">1990-01-01</span>
+                    </div>
+                    <div class="col-sm-4">
+                        <span class="text-muted small d-block">Gender</span>
+                        <span class="fw-semibold" th:text="${appointment.patient.gender}">Male</span>
+                    </div>
+                    <div class="col-sm-4">
+                        <span class="text-muted small d-block">Symptoms Noted</span>
+                        <span class="fw-semibold" th:text="${appointment.notes}">Fever</span>
+                    </div>
+                </div>
+            </div>
+
+            <form th:action="@{/consultations/save}" method="POST" class="needs-validation" novalidate>
+                <input type="hidden" name="appointmentId" th:value="${appointment.id}">
+                
+                <div class="mb-3">
+                    <label for="diagnosis" class="form-label fw-semibold text-muted small">Medical Diagnosis</label>
+                    <textarea id="diagnosis" name="diagnosis" class="form-control" placeholder="Enter clinical diagnosis (e.g., Acute Pharyngitis, Influenza)" rows="3" required style="resize: none;"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label for="prescription" class="form-label fw-semibold text-muted small">Prescribed Medications</label>
+                    <textarea id="prescription" name="prescription" class="form-control" placeholder="List medications with dosages and frequencies (e.g., Amoxicillin 500mg - 3x daily for 7 days)" rows="3" required style="resize: none;"></textarea>
+                </div>
+
+                <div class="mb-4">
+                    <label for="notes" class="form-label fw-semibold text-muted small">Internal Physician Notes</label>
+                    <textarea id="notes" name="notes" class="form-control" placeholder="Any additional notes or instructions for follow-ups..." rows="4" style="resize: none;"></textarea>
+                </div>
+
+                <div class="d-flex gap-2 pt-3 border-top border-light">
+                    <button type="submit" class="btn btn-primary px-4 py-2" style="border-radius: 8px;">Complete Consultation & Invoice</button>
+                    <a th:href="@{/appointments}" class="btn btn-outline-secondary px-4 py-2" style="border-radius: 8px;">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

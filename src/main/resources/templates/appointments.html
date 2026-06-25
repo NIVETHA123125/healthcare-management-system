@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(content=~{::#appointments-content}, headerTitle='Active Consultations')}">
+<body>
+    <div id="appointments-content">
+        <!-- Action Bar Card -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-calendar3-event text-primary fs-5"></i>
+                    <h4 class="mb-0 fs-5 fw-bold" style="text-transform: none; color: var(--medical-dark);">Appointment Schedule</h4>
+                </div>
+                <a th:href="@{/appointments/book}" class="btn btn-primary d-inline-flex align-items-center gap-2 px-4" style="border-radius: 8px;">
+                    <i class="bi bi-calendar-plus"></i> Book Appointment
+                </a>
+            </div>
+        </div>
+
+        <!-- Table Card -->
+        <div class="card border-0 shadow-sm p-0 overflow-hidden">
+            <div class="px-4 py-3 border-bottom border-light bg-light d-flex align-items-center gap-2">
+                <i class="bi bi-clock-history text-primary"></i>
+                <span class="text-uppercase fw-bold fs-7 text-muted tracking-wider">Scheduled Consultations</span>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th style="width: 80px;">ID</th>
+                            <th>Date & Time</th>
+                            <th>Patient Name</th>
+                            <th>Assigned Doctor</th>
+                            <th>Reason / Notes</th>
+                            <th>Status</th>
+                            <th class="text-end" style="width: 240px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Filter for Scheduled Status -->
+                        <tr th:each="appt : ${appointments}" th:if="${appt.status == 'SCHEDULED'}">
+                            <td class="fw-semibold text-primary" th:text="${appt.id}">1</td>
+                            <td class="fw-bold text-dark" th:text="${#temporals.format(appt.appointmentDate, 'yyyy-MM-dd hh:mm a')}">2026-06-20 10:00 AM</td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="user-avatar-circle" style="width: 32px; height: 32px; font-size: 12px;" th:text="${#strings.substring(appt.patient.fullName, 0, 1)}">P</div>
+                                    <span class="fw-bold" th:text="${appt.patient.fullName}">John Doe</span>
+                                </div>
+                            </td>
+                            <td class="text-muted" th:text="${'Dr. ' + appt.doctor.fullName}">Dr. House</td>
+                            <td th:text="${appt.notes}">Regular Checkup</td>
+                            <td>
+                                <span class="status-pill status-pill-scheduled" th:text="${appt.status}">SCHEDULED</span>
+                            </td>
+                            <td class="text-end">
+                                <div class="d-inline-flex gap-2">
+                                    <a th:href="@{/appointments/complete/{id}(id=${appt.id})}" 
+                                       class="btn btn-sm btn-outline-success px-3 py-1" style="font-size: 12px; border-radius: 6px;">
+                                        <i class="bi bi-check2-circle"></i> Complete
+                                    </a>
+                                    <a th:href="@{/appointments/cancel/{id}(id=${appt.id})}" 
+                                       class="btn btn-sm btn-outline-danger px-3 py-1"
+                                       style="font-size: 12px; border-radius: 6px;"
+                                       onclick="return confirmCancelAppointment();">
+                                        <i class="bi bi-x-circle"></i> Cancel
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        <!-- Fallback empty check by inspecting list for any SCHEDULED appts -->
+                        <tr th:if="${#lists.isEmpty(appointments.?[status == 'SCHEDULED'])}">
+                            <td colspan="7" class="text-center py-5">
+                                <i class="bi bi-calendar-x fs-1 text-muted mb-3 d-block"></i>
+                                <p class="text-muted mb-0">No scheduled appointments. Click "Book Appointment" to add one.</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

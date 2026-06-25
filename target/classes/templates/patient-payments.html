@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(content=~{::#patient-payments-content}, headerTitle='My Payments')}">
+<body>
+    <div id="patient-payments-content">
+        <!-- Header Panel -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-credit-card-fill text-primary fs-5"></i>
+                <h4 class="mb-0 fs-5 fw-bold" style="text-transform: none; color: var(--medical-dark);">My Transactional Statements</h4>
+            </div>
+        </div>
+
+        <!-- Table Card -->
+        <div class="card border-0 shadow-sm p-0 overflow-hidden">
+            <div class="px-4 py-3 border-bottom border-light bg-light d-flex align-items-center gap-2">
+                <i class="bi bi-wallet2 text-primary"></i>
+                <span class="text-uppercase fw-bold fs-7 text-muted tracking-wider">Statement Ledger</span>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th style="width: 120px;">Invoice ID</th>
+                            <th>Billing Date</th>
+                            <th>Amount</th>
+                            <th>Payment Method</th>
+                            <th>Payment Status</th>
+                            <th class="text-end" style="width: 200px;">Receipt</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="payment : ${payments}">
+                            <td class="fw-semibold text-primary" th:text="${payment.id}">1</td>
+                            <td class="font-mono text-muted small" th:text="${#temporals.format(payment.paymentDate, 'yyyy-MM-dd hh:mm a')}">2026-06-25 10:00 AM</td>
+                            <td class="fw-bold text-dark" th:text="${'$' + #numbers.formatDecimal(payment.amount, 1, 2)}">$150.00</td>
+                            <td>
+                                <span class="badge bg-light text-dark border px-2 py-1 rounded" th:text="${payment.paymentMethod}">CARD</span>
+                            </td>
+                            <td>
+                                <span class="status-pill" 
+                                      th:classappend="${payment.status == 'PAID' ? 'status-pill-completed' : 'status-pill-cancelled'}" 
+                                      th:text="${payment.status}">PAID</span>
+                            </td>
+                            <td class="text-end">
+                                <a th:if="${payment.status == 'PAID'}" th:href="@{/patient/payments/receipt/{id}(id=${payment.id})}" class="btn btn-sm btn-outline-primary px-3 py-1" style="font-size: 12px; border-radius: 6px;">
+                                    <i class="bi bi-printer"></i> Print Receipt
+                                </a>
+                                <span th:if="${payment.status != 'PAID'}" class="text-danger small fw-semibold"><i class="bi bi-exclamation-circle-fill"></i> Pending Clearance</span>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(payments)}">
+                            <td colspan="6" class="text-center py-5">
+                                <i class="bi bi-wallet fs-1 text-muted mb-3 d-block"></i>
+                                <p class="text-muted mb-0">No billing invoices or payment records found on your account.</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

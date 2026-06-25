@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(content=~{::#patient-dashboard}, headerTitle='My Health Portal')}">
+<body>
+    <div id="patient-dashboard">
+        <!-- Welcome Banner -->
+        <div class="card border-0 shadow-sm mb-4 p-4 text-white" style="background: var(--primary-medical); border-radius: 8px;">
+            <div class="d-flex align-items-center gap-3">
+                <div class="user-avatar-circle border border-white border-2" style="width: 54px; height: 54px; font-size: 20px; background: rgba(255, 255, 255, 0.15);" th:text="${#strings.substring(session.loggedInUser.fullName, 0, 1)}">N</div>
+                <div>
+                    <h3 class="mb-1 fw-bold text-white" style="text-transform: none;" th:text="${'Welcome back, ' + session.loggedInUser.fullName}">Nivetha Vivek</h3>
+                    <p class="mb-0 small text-white-50">Manage your clinical bookings, health records, and billing statements online.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-4">
+            <!-- Box 1: Profile Summary -->
+            <div class="col-md-8">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="d-flex justify-content-between align-items-center border-bottom border-light pb-3 mb-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-person-card-badge text-primary fs-5"></i>
+                            <h4 class="mb-0 fs-5 fw-bold" style="text-transform: none; color: var(--medical-dark);">Patient Profile Details</h4>
+                        </div>
+                        <a th:href="@{/patient/profile}" class="btn btn-sm btn-outline-primary" style="border-radius: 6px;">
+                            <i class="bi bi-pencil-square"></i> Edit Profile
+                        </a>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <span class="text-muted small d-block">Registered Email Address</span>
+                            <span class="fw-bold" th:text="${session.loggedInUser.patient.email}">patient@caregrid.com</span>
+                        </div>
+                        <div class="col-sm-6">
+                            <span class="text-muted small d-block">Registered Contact Phone</span>
+                            <span class="fw-bold font-mono" th:text="${session.loggedInUser.patient.phone}">+91 9876543210</span>
+                        </div>
+                        <div class="col-sm-6">
+                            <span class="text-muted small d-block">Date of Birth</span>
+                            <span class="fw-semibold font-mono" th:text="${session.loggedInUser.patient.dob}">1998-06-20</span>
+                        </div>
+                        <div class="col-sm-6">
+                            <span class="text-muted small d-block">Gender Group</span>
+                            <span class="badge bg-light text-dark border px-2 py-1 rounded" th:text="${session.loggedInUser.patient.gender}">Female</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Box 2: Quick Billing Summary -->
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex align-items-center gap-2 border-bottom border-light pb-3 mb-3">
+                            <i class="bi bi-wallet2 text-primary fs-5"></i>
+                            <h4 class="mb-0 fs-5 fw-bold" style="text-transform: none; color: var(--medical-dark);">Billing Summary</h4>
+                        </div>
+                        <div class="d-flex flex-column gap-2">
+                            <div class="d-flex justify-content-between align-items-center p-2 rounded bg-light">
+                                <span class="small text-muted">Cleared Payments</span>
+                                <span class="fw-bold text-success" th:text="${'$' + #numbers.formatDecimal(totalPaid, 1, 2)}">$0.00</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center p-2 rounded bg-danger-subtle bg-opacity-25">
+                                <span class="small text-muted">Pending Invoices</span>
+                                <span class="fw-bold text-danger" th:text="${'$' + #numbers.formatDecimal(totalPending, 1, 2)}">$0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                    <a th:href="@{/patient/payments}" class="btn btn-outline-primary btn-sm w-100 mt-3" style="border-radius: 6px;">
+                        View Statements
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-4">
+            <!-- Box 4: Upcoming Scheduled Appointments -->
+            <div class="col-lg-8">
+                <div class="card h-100 border-0 shadow-sm p-0 overflow-hidden">
+                    <div class="px-4 py-3 border-bottom border-light bg-light d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-calendar-event text-primary"></i>
+                            <span class="text-uppercase fw-bold fs-7 text-muted tracking-wider">Upcoming Visits</span>
+                        </div>
+                        <a th:href="@{/patient/appointments}" class="small text-decoration-none">View All</a>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table align-middle" th:if="${not #lists.isEmpty(upcomingAppointments)}">
+                            <thead>
+                                <tr>
+                                    <th>Date & Time</th>
+                                    <th>Assigned Doctor</th>
+                                    <th>Notes</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="appt : ${upcomingAppointments}">
+                                    <td class="fw-bold text-dark" th:text="${#temporals.format(appt.appointmentDate, 'yyyy-MM-dd hh:mm a')}">2026-06-25 10:00 AM</td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="user-avatar-circle" style="width: 28px; height: 28px; font-size: 11px;" th:text="${#strings.substring(appt.doctor.fullName, 0, 1)}">D</div>
+                                            <span class="fw-semibold" th:text="${'Dr. ' + appt.doctor.fullName}">Dr. Shankar R</span>
+                                        </div>
+                                    </td>
+                                    <td th:text="${appt.notes}">Checkup</td>
+                                    <td><span class="status-pill status-pill-scheduled" th:text="${appt.status}">SCHEDULED</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="text-center py-5 px-4" th:if="${#lists.isEmpty(upcomingAppointments)}">
+                            <i class="bi bi-calendar-x fs-1 text-muted mb-3 d-block"></i>
+                            <p class="text-muted">No upcoming visits scheduled.</p>
+                            <a th:href="@{/patient/appointments}" class="btn btn-primary btn-sm mt-2 px-3" style="border-radius: 6px;">
+                                Book Appointment Online
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Box 3: Announcements -->
+            <div class="col-lg-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="d-flex align-items-center gap-2 border-bottom border-light pb-3 mb-3">
+                        <i class="bi bi-megaphone text-primary fs-5"></i>
+                        <h4 class="mb-0 fs-5 fw-bold" style="text-transform: none; color: var(--medical-dark);">Clinic Notices</h4>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item px-0 py-2 border-light bg-transparent" th:each="ann : ${announcements}">
+                            <div class="d-flex gap-2">
+                                <i class="bi bi-info-circle-fill text-info mt-1"></i>
+                                <span class="small text-muted" th:text="${ann}">Announcement item</span>
+                            </div>
+                        </li>
+                        <li class="list-group-item px-0 py-2 border-0 text-center text-muted small" th:if="${#lists.isEmpty(announcements)}">
+                            No active clinic notices at this time.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Box 5: Recent Consultation Summaries -->
+        <div class="card border-0 shadow-sm">
+            <div class="d-flex align-items-center gap-2 border-bottom border-light pb-3 mb-4">
+                <i class="bi bi-prescription text-primary fs-5"></i>
+                <h4 class="mb-0 fs-5 fw-bold" style="text-transform: none; color: var(--medical-dark);">Recent Consultations & Prescriptions</h4>
+            </div>
+            
+            <div class="row g-3" th:if="${not #lists.isEmpty(recentConsultations)}">
+                <div class="col-md-6" th:each="cons : ${recentConsultations}">
+                    <div class="p-3 border rounded bg-light h-100 shadow-sm-hover transition-all">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="fw-bold font-mono text-muted small" th:text="${#temporals.format(cons.createdDate, 'yyyy-MM-dd hh:mm a')}">2026-06-23</span>
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2 py-1" th:text="${'Dr. ' + cons.doctor.lastName}">Dr. House</span>
+                        </div>
+                        <h5 class="fw-bold mb-2 text-dark" style="text-transform: none;">Diagnosis: <span th:text="${cons.diagnosis}" class="fw-normal text-muted">Flu</span></h5>
+                        <p class="mb-2 small"><strong>Prescription:</strong> <span th:text="${cons.prescription}">Medication</span></p>
+                        <p class="mb-0 small text-muted"><strong>Doctor Notes:</strong> <span th:text="${cons.notes}">Clinical notes</span></p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center py-5" th:if="${#lists.isEmpty(recentConsultations)}">
+                <i class="bi bi-prescription2 fs-1 text-muted mb-3 d-block"></i>
+                <p class="text-muted mb-0">No clinical consultation logs available yet.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

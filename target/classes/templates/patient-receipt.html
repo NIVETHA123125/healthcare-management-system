@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Receipt - CareGrid Healthcare</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Fonts -->
+    <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css(v=3)}">
+    <style>
+        body {
+            font-family: 'General Sans', sans-serif;
+            background: radial-gradient(circle at 50% 50%, #f0f7ff 0%, #ffffff 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .receipt-card {
+            background-color: #ffffff;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.04);
+            padding: 40px;
+            width: 100%;
+            max-width: 520px;
+        }
+
+        .receipt-divider {
+            border-top: 1.5px dashed #e2e8f0;
+            margin: 24px 0;
+        }
+
+        .receipt-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .receipt-brand h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 24px;
+            color: var(--primary-medical);
+            margin: 0;
+            text-transform: none;
+        }
+
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .item-row:last-child {
+            border-bottom: none;
+        }
+
+        .item-label {
+            font-size: 14px;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .item-value {
+            font-size: 14px;
+            color: #1e293b;
+            font-weight: 600;
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background: #ffffff !important;
+                padding: 0;
+            }
+            .receipt-card {
+                box-shadow: none !important;
+                border: none !important;
+                padding: 0 !important;
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="receipt-card">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="receipt-brand">
+                <i class="bi bi-heart-pulse-fill text-primary fs-4"></i>
+                <h1>CareGrid</h1>
+            </div>
+            <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 rounded-pill fw-bold" style="font-family: 'JetBrains Mono', monospace; font-size: 11px;">PAID / SETTLED</span>
+        </div>
+
+        <div class="receipt-divider"></div>
+
+        <!-- Receipt Info -->
+        <div>
+            <span class="text-uppercase fw-bold fs-7 text-muted tracking-wider d-block mb-3" style="font-family: 'Space Grotesk', sans-serif;">Official Payment Receipt</span>
+            
+            <div class="item-row">
+                <span class="item-label">Invoice / Receipt ID</span>
+                <span class="item-value font-mono" th:text="${payment.id}">1024</span>
+            </div>
+            <div class="item-row">
+                <span class="item-label">Date Cleared</span>
+                <span class="item-value font-mono" th:text="${#temporals.format(payment.paymentDate, 'yyyy-MM-dd hh:mm a')}">2026-06-25</span>
+            </div>
+            <div class="item-row">
+                <span class="item-label">Patient Name</span>
+                <span class="item-value" th:text="${payment.patient.fullName}">Nivetha Vivek</span>
+            </div>
+            <div class="item-row" th:if="${payment.appointment != null}">
+                <span class="item-label">Consulting Physician</span>
+                <span class="item-value" th:text="${'Dr. ' + payment.appointment.doctor.fullName}">Dr. House</span>
+            </div>
+            <div class="item-row">
+                <span class="item-label">Payment Method</span>
+                <span class="item-value font-mono" th:text="${payment.paymentMethod}">CARD</span>
+            </div>
+            
+            <div class="receipt-divider"></div>
+            
+            <div class="d-flex justify-content-between align-items-center pt-2">
+                <span class="fs-5 fw-bold text-dark" style="font-family: 'Space Grotesk', sans-serif;">Amount Settled</span>
+                <span class="fs-3 fw-bold text-primary" style="font-family: 'Space Grotesk', sans-serif;" th:text="${'$' + #numbers.formatDecimal(payment.amount, 1, 2)}">$150.00</span>
+            </div>
+        </div>
+
+        <!-- Footer Actions -->
+        <div class="no-print d-flex gap-2 mt-4 pt-3 border-top border-light">
+            <button onclick="window.print();" class="btn btn-primary px-4 py-2 flex-grow-1" style="border-radius: 8px;">
+                <i class="bi bi-printer"></i> Print Receipt
+            </button>
+            <a th:href="@{/patient/payments}" class="btn btn-outline-secondary px-4 py-2 flex-grow-1 text-center" style="border-radius: 8px;">
+                Back to Statements
+            </a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - CareGrid Healthcare</title>
+    <!-- Fonts -->
+    <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css(v=2)}">
+</head>
+<body class="public-body">
+    <!-- Public Header -->
+    <header class="public-nav">
+        <div class="brand">
+            <span class="brand-accent"></span>
+            <h1>CareGrid</h1>
+        </div>
+        <div class="public-nav-links">
+            <a th:href="@{/}" class="nav-link-btn">Home</a>
+            <a th:href="@{/about}" class="nav-link-btn active">About</a>
+            <a th:href="@{/contact}" class="nav-link-btn">Contact</a>
+            <a th:href="@{/login}" class="btn btn-outline btn-sm">Sign In</a>
+            <a th:href="@{/register}" class="btn btn-primary btn-sm">Register</a>
+        </div>
+    </header>
+
+    <main class="public-content">
+        <div class="bento-grid">
+            <!-- Box 1: Facility Introduction (Spans 2 cols) -->
+            <div class="bento-box bg-paper text-grid col-span-2">
+                <span class="mono-label">FACILITY OVERVIEW</span>
+                <h1 class="margin-top">State of the Art Outpatient Care</h1>
+                <p class="margin-top-sm">Founded in 2024, CareGrid is a progressive, community-oriented general practice clinic built with modern diagnostic architectures. We provide flat-rate care structures, making family consultations accessible, swift, and completely clear of insurance ambiguity.</p>
+                <p class="margin-top-sm">Our facility includes twelve general consultation suites, three specialized triage units, and a dedicated pediatric diagnostic wing staffed by certified specialists.</p>
+            </div>
+
+            <!-- Box 2: Quick Highlights (Spans 1 col, Gold bg) -->
+            <div class="bento-box bg-gold text-grid col-span-1">
+                <span class="mono-label label-accent-dark">BY THE NUMBERS</span>
+                <ul class="stats-list margin-top">
+                    <li>
+                        <span class="stats-name">Active Doctors</span>
+                        <span class="badge bg-mint">15+ Specialists</span>
+                    </li>
+                    <li>
+                        <span class="stats-name">Daily Capacity</span>
+                        <span class="badge bg-paper">250 Patients</span>
+                    </li>
+                    <li>
+                        <span class="stats-name">Avg Wait Time</span>
+                        <span class="badge bg-coral text-paper">12 Minutes</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Box 3: Mission & Vision (Spans 3 cols, Forest bg) -->
+            <div class="bento-box bg-forest text-paper col-span-3">
+                <span class="mono-label label-accent">MISSION & VISION</span>
+                <div class="mission-vision-container margin-top">
+                    <div class="vision-block">
+                        <h2>Our Mission</h2>
+                        <p class="margin-top-sm">To provide highly efficient, flat-rate, and accessible outpatient primary care through modern clinical interfaces, minimizing administrative barriers for both practitioners and patients.</p>
+                    </div>
+                    <div class="vision-block">
+                        <h2>Our Vision</h2>
+                        <p class="margin-top-sm">To become the national benchmark for flat-designed medical center workflows, combining rapid diagnostic delivery with patient self-service portal options.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Box 4: Specialized Highlights (Spans 1 col, Coral bg) -->
+            <div class="bento-box bg-coral text-paper col-span-1">
+                <span class="mono-label label-accent">OUR VALUES</span>
+                <h3 class="margin-top">Patient Centricity</h3>
+                <p class="margin-top-sm">We place patient records in the patient's own hands, facilitating transparent, secure, and rapid updates to personal health records.</p>
+            </div>
+
+            <!-- Box 5: Facility highlights list (Spans 2 cols) -->
+            <div class="bento-box bg-mint text-forest col-span-2">
+                <span class="mono-label label-accent-dark">FACILITY ADVANTAGES</span>
+                <ul class="stats-list margin-top">
+                    <li>
+                        <h3>Digital First Portal</h3>
+                        <p>Book bookings, access consultation diagnostic sheets, and print bills from any mobile screen.</p>
+                    </li>
+                    <li>
+                        <h3>In-House Lab & Triage</h3>
+                        <p>Basic blood panels, glucose monitoring, and immediate pediatric response teams under one roof.</p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <!-- Public Footer -->
+    <footer class="public-footer">
+        <div class="footer-brand">
+            <span class="brand-accent"></span>
+            <h2>CareGrid Healthcare</h2>
+        </div>
+        <p class="footer-desc">&copy; 2026 CareGrid Healthcare System. Programmed for flat modular performance.</p>
+        <div class="footer-links">
+            <a th:href="@{/about}">About Us</a>
+            <a th:href="@{/contact}">Contact Support</a>
+        </div>
+    </footer>
+</body>
+</html>

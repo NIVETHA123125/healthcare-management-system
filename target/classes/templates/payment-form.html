@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(content=~{::#payment-form-content}, headerTitle='Invoice Management')}">
+<body>
+    <div id="payment-form-content">
+        <div class="card border-0 shadow-sm max-width-800 mx-auto" style="max-width: 800px;">
+            <div class="d-flex align-items-center gap-2 border-bottom border-light pb-3 mb-4">
+                <i class="bi bi-wallet2 text-primary fs-4"></i>
+                <h3 class="mb-0 fs-5 fw-bold" style="text-transform: none; color: var(--medical-dark);" th:text="${payment.id == null ? 'Record New Billing Event' : 'Edit Invoice Record (ID: ' + payment.id + ')'}">Billing Log</h3>
+            </div>
+            
+            <form th:action="@{/payments/save}" th:object="${payment}" method="POST" class="needs-validation" novalidate>
+                <input type="hidden" th:field="*{id}">
+                
+                <!-- Patient Selector -->
+                <div class="mb-3">
+                    <label for="patientId" class="form-label fw-semibold text-muted small">Assigned Patient</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white text-muted"><i class="bi bi-person"></i></span>
+                        <select id="patientId" name="patientId" class="form-select" required>
+                            <option value="" disabled selected>Select Patient</option>
+                            <option th:each="patient : ${patients}" 
+                                    th:value="${patient.id}" 
+                                    th:text="${patient.fullName + ' (ID: ' + patient.id + ')'}"
+                                    th:selected="${payment.patient != null && payment.patient.id == patient.id}">John Doe</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <!-- Invoice Amount -->
+                    <div class="col-md-4">
+                        <label for="amount" class="form-label fw-semibold text-muted small">Invoice Amount ($)</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white text-muted"><i class="bi bi-currency-dollar"></i></span>
+                            <input type="number" id="amount" th:field="*{amount}" step="0.01" class="form-control" placeholder="150.00" required>
+                        </div>
+                    </div>
+
+                    <!-- Method -->
+                    <div class="col-md-4">
+                        <label for="paymentMethod" class="form-label fw-semibold text-muted small">Settlement Method</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white text-muted"><i class="bi bi-credit-card"></i></span>
+                            <select id="paymentMethod" th:field="*{paymentMethod}" class="form-select" required>
+                                <option value="CARD">Debit / Credit Card</option>
+                                <option value="CASH">Cash Settlement</option>
+                                <option value="INSURANCE">Insurance Claim</option>
+                                <option value="UPI">Mobile / UPI Wallet</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="col-md-4">
+                        <label for="status" class="form-label fw-semibold text-muted small">Invoice Status</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white text-muted"><i class="bi bi-info-circle"></i></span>
+                            <select id="status" th:field="*{status}" class="form-select" required>
+                                <option value="PENDING">PENDING CLEARANCE</option>
+                                <option value="PAID">PAID / SETTLED</option>
+                                <option value="CANCELLED">VOID / CANCELLED</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 pt-3 border-top border-light">
+                    <button type="submit" class="btn btn-primary px-4 py-2" style="border-radius: 8px;">Save Invoice Details</button>
+                    <a th:href="@{/payments}" class="btn btn-outline-secondary px-4 py-2" style="border-radius: 8px;">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

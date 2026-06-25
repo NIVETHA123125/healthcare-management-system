@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(content=~{::#history-content}, headerTitle='Consultation History')}">
+<body>
+    <div id="history-content">
+        <!-- Header Panel -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-clock-history text-primary fs-5"></i>
+                <h4 class="mb-0 fs-5 fw-bold" style="text-transform: none; color: var(--medical-dark);">Past & Current Visits Log</h4>
+            </div>
+        </div>
+
+        <!-- Table Card -->
+        <div class="card border-0 shadow-sm p-0 overflow-hidden">
+            <div class="px-4 py-3 border-bottom border-light bg-light d-flex align-items-center gap-2">
+                <i class="bi bi-journal-medical text-primary"></i>
+                <span class="text-uppercase fw-bold fs-7 text-muted tracking-wider">Clinical Records</span>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th style="width: 80px;">ID</th>
+                            <th>Date & Time</th>
+                            <th>Patient Name</th>
+                            <th>Assigned Doctor</th>
+                            <th>Clinical Notes</th>
+                            <th>Status Log</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="appt : ${appointments}">
+                            <td class="fw-semibold text-primary" th:text="${appt.id}">1</td>
+                            <td class="fw-bold text-dark" th:text="${#temporals.format(appt.appointmentDate, 'yyyy-MM-dd hh:mm a')}">2026-06-20 10:00 AM</td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="user-avatar-circle" style="width: 32px; height: 32px; font-size: 12px;" th:text="${#strings.substring(appt.patient.fullName, 0, 1)}">P</div>
+                                    <span class="fw-bold" th:text="${appt.patient.fullName}">John Doe</span>
+                                </div>
+                            </td>
+                            <td class="text-muted" th:text="${'Dr. ' + appt.doctor.fullName}">Dr. House</td>
+                            <td th:text="${appt.notes}">Regular Checkup</td>
+                            <td>
+                                <span class="status-pill" 
+                                      th:classappend="${appt.status == 'SCHEDULED' ? 'status-pill-scheduled' : (appt.status == 'COMPLETED' ? 'status-pill-completed' : 'status-pill-cancelled')}" 
+                                      th:text="${appt.status}">SCHEDULED</span>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(appointments)}">
+                            <td colspan="6" class="text-center py-5">
+                                <i class="bi bi-hourglass-split fs-1 text-muted mb-3 d-block"></i>
+                                <p class="text-muted mb-0">No appointment records found in history.</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(content=~{::#doctor-form-content}, headerTitle=${pageTitle})}">
+<body>
+    <div id="doctor-form-content">
+        <div class="card border-0 shadow-sm max-width-800 mx-auto" style="max-width: 800px;">
+            <div class="d-flex align-items-center gap-2 border-bottom border-light pb-3 mb-4">
+                <i class="bi bi-person-fill-add text-primary fs-4"></i>
+                <h3 class="mb-0 fs-5 fw-bold" style="text-transform: none; color: var(--medical-dark);" th:text="${doctor.id == null ? 'New Doctor Registration' : 'Update Doctor Profile (ID: ' + doctor.id + ')'}">Doctor Record</h3>
+            </div>
+            
+            <form th:action="@{/doctors/save}" th:object="${doctor}" method="POST" class="needs-validation" novalidate>
+                <input type="hidden" th:field="*{id}">
+                
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label for="firstName" class="form-label fw-semibold text-muted small">First Name</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white text-muted"><i class="bi bi-person"></i></span>
+                            <input type="text" id="firstName" th:field="*{firstName}" class="form-control" placeholder="e.g. Gregory" required autocomplete="given-name">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="lastName" class="form-label fw-semibold text-muted small">Last Name</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white text-muted"><i class="bi bi-person"></i></span>
+                            <input type="text" id="lastName" th:field="*{lastName}" class="form-control" placeholder="e.g. House" required autocomplete="family-name">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label for="email" class="form-label fw-semibold text-muted small">Email Address</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white text-muted"><i class="bi bi-envelope"></i></span>
+                            <input type="email" id="email" th:field="*{email}" class="form-control" placeholder="g.house@caregrid.com" required autocomplete="email">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="phone" class="form-label fw-semibold text-muted small">Phone Number</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white text-muted"><i class="bi bi-telephone"></i></span>
+                            <input type="text" id="phone" th:field="*{phone}" class="form-control" placeholder="e.g. +1 (555) 100-2000" autocomplete="tel">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label for="specialization" class="form-label fw-semibold text-muted small">Specialization</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white text-muted"><i class="bi bi-patch-check"></i></span>
+                            <input type="text" id="specialization" th:field="*{specialization}" class="form-control" placeholder="e.g. Cardiology, Neurology" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="availabilityHours" class="form-label fw-semibold text-muted small">Availability Hours</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white text-muted"><i class="bi bi-clock"></i></span>
+                            <input type="text" id="availabilityHours" th:field="*{availabilityHours}" class="form-control" placeholder="e.g. 09:00 AM - 05:00 PM">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 pt-3 border-top border-light">
+                    <button type="submit" class="btn btn-primary px-4 py-2" style="border-radius: 8px;">Save Doctor</button>
+                    <a th:href="@{/doctors}" class="btn btn-outline-secondary px-4 py-2" style="border-radius: 8px;">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

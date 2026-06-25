@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - CareGrid Healthcare</title>
+    <!-- Fonts -->
+    <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css(v=2)}">
+</head>
+<body class="public-body">
+    <!-- Public Header -->
+    <header class="public-nav">
+        <div class="brand">
+            <span class="brand-accent"></span>
+            <h1>CareGrid</h1>
+        </div>
+        <div class="public-nav-links">
+            <a th:href="@{/}" class="nav-link-btn">Home</a>
+            <a th:href="@{/about}" class="nav-link-btn">About</a>
+            <a th:href="@{/contact}" class="nav-link-btn active">Contact</a>
+            <a th:href="@{/login}" class="btn btn-outline btn-sm">Sign In</a>
+            <a th:href="@{/register}" class="btn btn-primary btn-sm">Register</a>
+        </div>
+    </header>
+
+    <main class="public-content">
+        <div class="bento-grid">
+            <!-- Box 1: Contact Details (Spans 1 col, Forest bg) -->
+            <div class="bento-box bg-forest text-paper col-span-1">
+                <span class="mono-label label-accent">CHANNELS</span>
+                <div class="contact-channels margin-top">
+                    <div class="channel-block">
+                        <h4>General Phone</h4>
+                        <p class="mono-label label-accent">+1 (555) 019-2834</p>
+                    </div>
+                    <div class="channel-block margin-top-sm">
+                        <h4>Email Address</h4>
+                        <p class="mono-label label-accent">support@caregrid.com</p>
+                    </div>
+                    <div class="channel-block margin-top-sm">
+                        <h4>Clinic Location</h4>
+                        <p>123 Care Street, City Center</p>
+                        <p>Medical Block 4B</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Box 2: Working Hours & Location (Spans 2 cols, Mint bg) -->
+            <div class="bento-box bg-mint text-forest col-span-2">
+                <span class="mono-label label-accent-dark">WORKING HOURS</span>
+                <div class="hours-grid margin-top">
+                    <div class="hours-row">
+                        <span>Monday - Friday</span>
+                        <span class="font-bold">08:00 AM - 08:00 PM</span>
+                    </div>
+                    <div class="hours-row">
+                        <span>Saturday</span>
+                        <span class="font-bold">09:00 AM - 05:00 PM</span>
+                    </div>
+                    <div class="hours-row">
+                        <span>Sunday & Holidays</span>
+                        <span class="font-bold text-coral">Emergency Triage Only (24/7)</span>
+                    </div>
+                </div>
+                <p class="margin-top">For immediate emergency assistance, please call the general triage response hotline directly at +1 (555) 911-0000.</p>
+            </div>
+
+            <!-- Box 3: Inquiry Submission Form (Spans 3 cols) -->
+            <div class="bento-box bg-paper text-grid col-span-3">
+                <span class="mono-label">ONLINE INQUIRY FORM</span>
+                
+                <!-- Display success alert on submission (mock behavior) -->
+                <div class="alert alert-error bg-mint text-forest border-color margin-top" id="mock-success" style="display:none; border-color: var(--color-forest)">
+                    <span class="alert-icon">✓</span>
+                    <span>Inquiry submitted successfully! A clinic receptionist will review your query shortly.</span>
+                </div>
+
+                <form class="flat-form margin-top" id="inquiry-form" onsubmit="event.preventDefault(); document.getElementById('mock-success').style.display='flex'; document.getElementById('inquiry-form').reset();">
+                    <div class="form-row">
+                        <div class="form-group col-6">
+                            <label for="name">Your Name</label>
+                            <input type="text" id="name" placeholder="John Doe" required autocomplete="off">
+                        </div>
+                        <div class="form-group col-6">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" placeholder="john@example.com" required autocomplete="off">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="subject">Subject</label>
+                        <input type="text" id="subject" placeholder="e.g. Inquiry regarding pediatric services" required autocomplete="off">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="message">Detailed Message</label>
+                        <textarea id="message" placeholder="Type your inquiry details here..." rows="4" required></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Send Inquiry</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <!-- Public Footer -->
+    <footer class="public-footer">
+        <div class="footer-brand">
+            <span class="brand-accent"></span>
+            <h2>CareGrid Healthcare</h2>
+        </div>
+        <p class="footer-desc">&copy; 2026 CareGrid Healthcare System. Programmed for flat modular performance.</p>
+        <div class="footer-links">
+            <a th:href="@{/about}">About Us</a>
+            <a th:href="@{/contact}">Contact Support</a>
+        </div>
+    </footer>
+</body>
+</html>

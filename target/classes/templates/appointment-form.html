@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(content=~{::#appointment-form-content}, headerTitle='Schedule Consultation')}">
+<body>
+    <div id="appointment-form-content">
+        <div class="card border-0 shadow-sm max-width-800 mx-auto" style="max-width: 800px;">
+            <div class="d-flex align-items-center gap-2 border-bottom border-light pb-3 mb-4">
+                <i class="bi bi-calendar-plus-fill text-primary fs-4"></i>
+                <h3 class="mb-0 fs-5 fw-bold" style="text-transform: none; color: var(--medical-dark);">New Appointment Booking</h3>
+            </div>
+            
+            <form th:action="@{/appointments/save}" method="POST" class="needs-validation" novalidate>
+                <div class="row g-3 mb-3">
+                    <!-- Patient Dropdown selection -->
+                    <div class="col-md-6">
+                        <label for="patientId" class="form-label fw-semibold text-muted small">Select Patient</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white text-muted"><i class="bi bi-person"></i></span>
+                            <select id="patientId" name="patientId" class="form-select" required>
+                                <option value="" disabled selected>Choose a Patient</option>
+                                <option th:each="patient : ${patients}" 
+                                        th:value="${patient.id}" 
+                                        th:text="${patient.fullName + ' (ID: ' + patient.id + ')'}">John Doe</option>
+                            </select>
+                        </div>
+                        <div class="text-danger small mt-2" th:if="${#lists.isEmpty(patients)}">
+                            <i class="bi bi-exclamation-circle-fill"></i> No patients found. Please <a th:href="@{/patients/add}" class="fw-semibold">register a patient</a> first.
+                        </div>
+                    </div>
+
+                    <!-- Doctor Dropdown selection -->
+                    <div class="col-md-6">
+                        <label for="doctorId" class="form-label fw-semibold text-muted small">Select Doctor</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white text-muted"><i class="bi bi-heart-pulse"></i></span>
+                            <select id="doctorId" name="doctorId" class="form-select" required>
+                                <option value="" disabled selected>Choose a Doctor</option>
+                                <option th:each="doctor : ${doctors}" 
+                                        th:value="${doctor.id}" 
+                                        th:text="${'Dr. ' + doctor.fullName + ' - ' + doctor.specialization}">Dr. House - Diagnostics</option>
+                            </select>
+                        </div>
+                        <div class="text-danger small mt-2" th:if="${#lists.isEmpty(doctors)}">
+                            <i class="bi bi-exclamation-circle-fill"></i> No doctors found. Please <a th:href="@{/doctors/add}" class="fw-semibold">register a doctor</a> first.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label for="appointmentDate" class="form-label fw-semibold text-muted small">Appointment Date & Time</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white text-muted"><i class="bi bi-calendar-event"></i></span>
+                            <input type="datetime-local" id="appointmentDate" name="appointmentDate" class="form-control" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="notes" class="form-label fw-semibold text-muted small">Clinical Notes / Symptoms</label>
+                    <textarea id="notes" name="notes" class="form-control" placeholder="Enter clinical reason, symptoms, or custom instructions..." rows="4" style="resize: none;"></textarea>
+                </div>
+
+                <div class="d-flex gap-2 pt-3 border-top border-light">
+                    <button type="submit" class="btn btn-primary px-4 py-2" style="border-radius: 8px;" th:disabled="${#lists.isEmpty(patients) || #lists.isEmpty(doctors)}">Schedule Booking</button>
+                    <a th:href="@{/appointments}" class="btn btn-outline-secondary px-4 py-2" style="border-radius: 8px;">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
