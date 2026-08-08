@@ -4,7 +4,7 @@ CareGrid is a modern, responsive, and flat-designed Healthcare Management System
 
 ## Tech Stack
 * **Backend:** Java 17+, Spring Boot 3.3.0, Spring MVC, Spring Data JPA
-* **Frontend:** Thymeleaf templates, Vanilla CSS (Custom Bento layout & color scheme), Vanilla Javascript
+* **Frontend:** Thymeleaf templates, CSS (Custom Bento layout & color scheme),Javascript
 * **Database:** MySQL
 * **Utilities:** Lombok
 
