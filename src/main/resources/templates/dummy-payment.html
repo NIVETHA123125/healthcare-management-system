@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(content=~{::#dummy-payment-content}, headerTitle='Payment Checkout')}">
+<body>
+    <div id="dummy-payment-content">
+        <!-- Processing Overlay -->
+        <div id="processingOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.95); z-index: 10000; align-items: center; justify-content: center; flex-direction: column;">
+            <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status"></div>
+            <h4 class="fw-bold text-dark">Processing Payment... Please wait.</h4>
+            <p class="text-muted small">Do not close this window or refresh the page.</p>
+        </div>
+
+        <div class="row g-4 max-width-1000 mx-auto" style="max-width: 1000px;">
+            <!-- Left: Bill Details Card -->
+            <div class="col-md-5">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="px-4 py-3 border-bottom border-light bg-light">
+                        <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-receipt me-2 text-primary"></i>Bill Details</h5>
+                    </div>
+                    <div class="card-body p-4 d-flex flex-column justify-content-between">
+                        <div class="d-flex flex-column gap-3">
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted small">Bill ID</span>
+                                <span class="fw-semibold text-dark" th:text="${'BILL-' + payment.id}">BILL-1</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted small">Patient Name</span>
+                                <span class="fw-semibold text-dark" th:text="${payment.patient.fullName}">John Doe</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted small">Appointment ID</span>
+                                <span class="fw-semibold text-dark" th:text="${payment.appointment != null ? 'APP-' + payment.appointment.id : 'Direct Invoice'}">APP-5</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted small">Consultation Fee</span>
+                                <span class="fw-semibold text-dark" th:text="${'₹' + #numbers.formatDecimal(payment.amount - 50.00 > 0 ? payment.amount - 50.00 : payment.amount, 1, 2)}">₹100.00</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted small">Additional Charges</span>
+                                <span class="fw-semibold text-dark" th:text="${payment.amount - 50.00 > 0 ? '₹50.00' : '₹0.00'}">₹50.00</span>
+                            </div>
+                            <hr class="my-2 border-light">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-bold text-dark fs-6">Total Amount</span>
+                                <span class="fw-bold text-primary fs-5" th:text="${'₹' + #numbers.formatDecimal(payment.amount, 1, 2)}">₹150.00</span>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 pt-3 border-top d-flex flex-column gap-2">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-muted small">Payment Status</span>
+                                <span class="status-pill status-pill-pending" th:text="${payment.status}">PENDING</span>
+                            </div>
+                            <form th:action="@{/patient/payments/cancel/{id}(id=${payment.id})}" method="POST" class="mt-2">
+                                <button type="submit" class="btn btn-outline-danger w-100 py-2 border-0 fw-semibold" style="border-radius: 8px;">
+                                    <i class="bi bi-x-circle me-1"></i> Cancel Payment
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Payment Methods Card -->
+            <div class="col-md-7">
+                <div class="card border-0 shadow-sm">
+                    <div class="px-4 py-3 border-bottom border-light bg-light">
+                        <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-shield-lock-fill me-2 text-primary"></i>Secure Check-out</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <!-- Navigation Tabs -->
+                        <ul class="nav nav-tabs nav-justified mb-4" id="paymentTabs" role="tablist" style="border-bottom: 2px solid #e9ecef;">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active py-3 fw-bold text-uppercase" style="font-size: 12px; border: none; border-bottom: 3px solid transparent;" id="card-tab" data-bs-toggle="tab" data-bs-target="#card" type="button" role="tab" aria-controls="card" aria-selected="true" onclick="setMethod('CARD')">
+                                    <i class="bi bi-credit-card me-1"></i> Card
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link py-3 fw-bold text-uppercase" style="font-size: 12px; border: none; border-bottom: 3px solid transparent;" id="upi-tab" data-bs-toggle="tab" data-bs-target="#upi" type="button" role="tab" aria-controls="upi" aria-selected="false" onclick="setMethod('UPI')">
+                                    <i class="bi bi-qr-code-scan me-1"></i> UPI
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link py-3 fw-bold text-uppercase" style="font-size: 12px; border: none; border-bottom: 3px solid transparent;" id="net-banking-tab" data-bs-toggle="tab" data-bs-target="#net-banking" type="button" role="tab" aria-controls="net-banking" aria-selected="false" onclick="setMethod('NET_BANKING')">
+                                    <i class="bi bi-bank me-1"></i> Net Banking
+                                </button>
+                            </li>
+                        </ul>
+
+                        <form id="paymentForm" th:action="@{/patient/payments/process/{id}(id=${payment.id})}" method="POST" onsubmit="triggerProcessing(event)">
+                            <input type="hidden" name="paymentMethod" id="selectedMethod" value="CARD">
+                            
+                            <div class="tab-content" id="paymentTabsContent">
+                                <!-- Card Payment Form -->
+                                <div class="tab-pane fade show active" id="card" role="tabpanel" aria-labelledby="card-tab">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold text-muted small">Card Holder Name</label>
+                                        <input type="text" name="cardHolderName" id="cardHolderName" class="form-control py-2" placeholder="Demo User" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold text-muted small">Card Number</label>
+                                        <input type="text" name="cardNumber" id="cardNumber" class="form-control py-2" placeholder="4111 1111 1111 1111" required maxlength="16">
+                                    </div>
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-semibold text-muted small">Expiry Date</label>
+                                            <input type="text" class="form-control py-2" placeholder="MM/YY" required maxlength="5">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-semibold text-muted small">CVV</label>
+                                            <input type="password" name="cvv" id="cvv" class="form-control py-2" placeholder="123" required maxlength="3">
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold text-muted small">Card PIN (4 Digits)</label>
+                                        <input type="password" name="pin" id="pin" class="form-control py-2" placeholder="1234" required maxlength="4">
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label fw-semibold text-muted small">Amount (₹)</label>
+                                        <input type="text" class="form-control py-2 bg-light" th:value="${#numbers.formatDecimal(payment.amount, 1, 2)}" readonly>
+                                    </div>
+                                </div>
+
+                                <!-- UPI Payment Form -->
+                                <div class="tab-pane fade" id="upi" role="tabpanel" aria-labelledby="upi-tab">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold text-muted small">UPI ID</label>
+                                        <input type="text" name="upiId" id="upiId" class="form-control py-2" placeholder="demo@upi">
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label fw-semibold text-muted small">UPI PIN (4 Digits)</label>
+                                        <input type="password" name="upiPin" id="upiPin" class="form-control py-2" placeholder="1234" maxlength="4">
+                                    </div>
+                                </div>
+
+                                <!-- Net Banking Form -->
+                                <div class="tab-pane fade" id="net-banking" role="tabpanel" aria-labelledby="net-banking-tab">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold text-muted small">Select Bank</label>
+                                        <select class="form-select py-2">
+                                            <option value="SBI">State Bank of India</option>
+                                            <option value="HDFC">HDFC Bank</option>
+                                            <option value="ICICI">ICICI Bank</option>
+                                            <option value="AXIS">Axis Bank</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold text-muted small">Username</label>
+                                        <input type="text" name="username" id="username" class="form-control py-2" placeholder="demoUser">
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label fw-semibold text-muted small">Password</label>
+                                        <input type="password" name="password" id="password" class="form-control py-2" placeholder="••••••••">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100 py-3 fw-bold" style="border-radius: 8px; font-size: 15px;">
+                                <i class="bi bi-lock-fill me-1"></i> Authorize & Pay ₹<span th:text="${#numbers.formatDecimal(payment.amount, 1, 2)}">150.00</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function setMethod(method) {
+                document.getElementById('selectedMethod').value = method;
+                
+                // Clear required attributes for other tabs to prevent form validation blocks
+                const cardInputs = ['cardHolderName', 'cardNumber', 'cvv', 'pin'];
+                const upiInputs = ['upiId', 'upiPin'];
+                const nbInputs = ['username', 'password'];
+
+                if (method === 'CARD') {
+                    cardInputs.forEach(id => {
+                        const el = document.getElementById(id);
+                        if(el) el.setAttribute('required', 'required');
+                    });
+                    upiInputs.concat(nbInputs).forEach(id => {
+                        const el = document.getElementById(id);
+                        if(el) el.removeAttribute('required');
+                    });
+                } else if (method === 'UPI') {
+                    upiInputs.forEach(id => {
+                        const el = document.getElementById(id);
+                        if(el) el.setAttribute('required', 'required');
+                    });
+                    cardInputs.concat(nbInputs).forEach(id => {
+                        const el = document.getElementById(id);
+                        if(el) el.removeAttribute('required');
+                    });
+                } else if (method === 'NET_BANKING') {
+                    nbInputs.forEach(id => {
+                        const el = document.getElementById(id);
+                        if(el) el.setAttribute('required', 'required');
+                    });
+                    cardInputs.concat(upiInputs).forEach(id => {
+                        const el = document.getElementById(id);
+                        if(el) el.removeAttribute('required');
+                    });
+                }
+            }
+
+            function triggerProcessing(e) {
+                e.preventDefault();
+                
+                // Show loading screen overlay
+                document.getElementById('processingOverlay').style.display = 'flex';
+                
+                // Simulate processing time
+                setTimeout(function() {
+                    document.getElementById('paymentForm').submit();
+                }, 2000);
+            }
+
+            // Set default active tab settings on load
+            document.addEventListener('DOMContentLoaded', function() {
+                setMethod('CARD');
+            });
+        </script>
+    </div>
+</body>
+</html>

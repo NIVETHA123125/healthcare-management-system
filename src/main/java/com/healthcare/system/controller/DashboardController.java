@@ -26,6 +26,8 @@ public class DashboardController {
         model.addAttribute("patientCount", patientService.getPatientCount());
         model.addAttribute("doctorCount", doctorService.getDoctorCount());
         model.addAttribute("appointmentCount", appointmentService.getAppointmentCount());
+        model.addAttribute("pendingCount", appointmentService.getPendingCount());
+        model.addAttribute("approvedCount", appointmentService.getApprovedCount());
         model.addAttribute("scheduledCount", appointmentService.getScheduledCount());
         model.addAttribute("completedCount", appointmentService.getCompletedCount());
         model.addAttribute("cancelledCount", appointmentService.getCancelledCount());

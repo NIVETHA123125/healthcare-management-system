@@ -20,19 +20,39 @@ public class UserService {
     private PatientRepository patientRepository;
 
     public Optional<User> authenticate(String username, String password) {
+        if (username != null) username = username.trim().toLowerCase();
         return userRepository.findByUsername(username)
-                .filter(user -> user.getPassword().equals(password));
+                .filter(user -> checkPassword(password, user.getPassword()));
+    }
+
+    private boolean checkPassword(String plainPassword, String storedPassword) {
+        if (storedPassword == null) {
+            return false;
+        }
+        if (storedPassword.startsWith("$2a$") || storedPassword.startsWith("$2b$") || storedPassword.startsWith("$2y$")) {
+            try {
+                return org.mindrot.jbcrypt.BCrypt.checkpw(plainPassword, storedPassword);
+            } catch (Exception e) {
+                return false;
+            }
+        }
+        return storedPassword.equals(plainPassword);
     }
 
     public User save(User user) {
+        if (user.getUsername() != null) {
+            user.setUsername(user.getUsername().trim().toLowerCase());
+        }
         return userRepository.save(user);
     }
 
     public Optional<User> findByUsername(String username) {
+        if (username != null) username = username.trim().toLowerCase();
         return userRepository.findByUsername(username);
     }
 
     public boolean existsByUsername(String username) {
+        if (username != null) username = username.trim().toLowerCase();
         return userRepository.findByUsername(username).isPresent();
     }
 
@@ -50,26 +70,28 @@ public class UserService {
         }
         patient.setFirstName(firstName);
         patient.setLastName(lastName);
+        if (email != null) email = email.trim().toLowerCase();
         patient.setEmail(email);
         patient.setPhone(phone);
         patient.setGender(gender);
         patient.setDob(dob);
         patient.setAddress(address);
 
-        Patient savedPatient = patientRepository.save(patient);
+        Patient savedPatient = patientRepository.saveAndFlush(patient);
 
         // Create Corresponding User Record
         User user = new User();
         user.setUsername(email); // For patients, email is username
-        user.setPassword(password);
+        user.setPassword(org.mindrot.jbcrypt.BCrypt.hashpw(password, org.mindrot.jbcrypt.BCrypt.gensalt()));
         user.setFullName(fullName);
         user.setRole("ROLE_PATIENT");
         user.setPatient(savedPatient);
 
-        return userRepository.save(user);
+        return userRepository.saveAndFlush(user);
     }
 
     public boolean verifyForgotPassword(String email, LocalDate dob) {
+        if (email != null) email = email.trim().toLowerCase();
         Optional<User> userOpt = userRepository.findByUsername(email);
         if (userOpt.isPresent()) {
             User user = userOpt.get();
@@ -82,10 +104,11 @@ public class UserService {
 
     @Transactional
     public boolean resetPassword(String email, String newPassword) {
+        if (email != null) email = email.trim().toLowerCase();
         Optional<User> userOpt = userRepository.findByUsername(email);
         if (userOpt.isPresent()) {
             User user = userOpt.get();
-            user.setPassword(newPassword);
+            user.setPassword(org.mindrot.jbcrypt.BCrypt.hashpw(newPassword, org.mindrot.jbcrypt.BCrypt.gensalt()));
             userRepository.save(user);
             return true;
         }

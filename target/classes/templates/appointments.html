@@ -2,6 +2,16 @@
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(content=~{::#appointments-content}, headerTitle='Active Consultations')}">
 <body>
     <div id="appointments-content">
+        <!-- Dynamic Alert Banners -->
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert" style="border-radius: 8px;">
+            <i class="bi bi-check-circle-fill me-2"></i> <span th:text="${successMessage}">Success!</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" role="alert" style="border-radius: 8px;">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> <span th:text="${errorMessage}">Error!</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
         <!-- Action Bar Card -->
         <div class="card border-0 shadow-sm mb-4">
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
@@ -13,6 +23,50 @@
                     <i class="bi bi-calendar-plus"></i> Book Appointment
                 </a>
             </div>
+        </div>
+
+        <!-- Search and Action Bar Card -->
+        <div class="card border-0 shadow-sm mb-4 p-3">
+            <form th:action="@{/appointments}" method="GET">
+                <div class="row g-3 align-items-center">
+                    <div class="col-md-3">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0 text-muted">
+                                <i class="bi bi-search"></i>
+                            </span>
+                            <input type="text" name="search" th:value="${search}" placeholder="Search patient, doctor, ID..." class="form-control border-start-0 ps-0" style="border-radius: 0 8px 8px 0; outline: none; box-shadow: none;">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <select name="status" class="form-select" style="border-radius: 8px;">
+                            <option value="">All Statuses</option>
+                            <option value="PENDING" th:selected="${status == 'PENDING'}">Pending</option>
+                            <option value="APPROVED" th:selected="${status == 'APPROVED'}">Approved</option>
+                            <option value="COMPLETED" th:selected="${status == 'COMPLETED'}">Completed</option>
+                            <option value="CANCELLED" th:selected="${status == 'CANCELLED'}">Cancelled</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select name="doctorId" class="form-select" style="border-radius: 8px;">
+                            <option value="">All Doctors</option>
+                            <option th:each="doc : ${doctors}" th:value="${doc.id}" th:text="${'Dr. ' + doc.fullName}" th:selected="${selectedDoctorId == doc.id}">Doctor</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="date" name="date" th:value="${date}" class="form-control" style="border-radius: 8px;">
+                    </div>
+                    <div class="col-md-1 text-center">
+                        <div class="form-check form-switch d-inline-block text-start">
+                            <input class="form-check-input" type="checkbox" name="todayOnly" id="todayOnly" value="true" th:checked="${todayOnly == true}">
+                            <label class="form-check-label small fw-bold" for="todayOnly">Today</label>
+                        </div>
+                    </div>
+                    <div class="col-md-2 d-flex gap-2 justify-content-md-end">
+                        <button type="submit" class="btn btn-primary px-3" style="border-radius: 8px;">Filter</button>
+                        <a th:href="@{/appointments}" class="btn btn-outline-secondary px-3" style="border-radius: 8px;">Clear</a>
+                    </div>
+                </div>
+            </form>
         </div>
 
         <!-- Table Card -->
@@ -36,8 +90,8 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Filter for Scheduled Status -->
-                        <tr th:each="appt : ${appointments}" th:if="${appt.status == 'SCHEDULED'}">
+                        <!-- Filter for Status -->
+                        <tr th:each="appt : ${appointments}">
                             <td class="fw-semibold text-primary" th:text="${appt.id}">1</td>
                             <td class="fw-bold text-dark" th:text="${#temporals.format(appt.appointmentDate, 'yyyy-MM-dd hh:mm a')}">2026-06-20 10:00 AM</td>
                             <td>
@@ -49,28 +103,40 @@
                             <td class="text-muted" th:text="${'Dr. ' + appt.doctor.fullName}">Dr. House</td>
                             <td th:text="${appt.notes}">Regular Checkup</td>
                             <td>
-                                <span class="status-pill status-pill-scheduled" th:text="${appt.status}">SCHEDULED</span>
+                                <span class="status-pill" 
+                                      th:classappend="${appt.status == 'PENDING' ? 'status-pill-pending' : (appt.status == 'APPROVED' ? 'status-pill-approved' : (appt.status == 'COMPLETED' ? 'status-pill-completed' : 'status-pill-cancelled'))}" 
+                                      th:text="${appt.status}">PENDING</span>
                             </td>
                             <td class="text-end">
                                 <div class="d-inline-flex gap-2">
-                                    <a th:href="@{/appointments/complete/{id}(id=${appt.id})}" 
+                                    <!-- Approve action (only for PENDING) -->
+                                    <a th:if="${appt.status == 'PENDING'}" 
+                                       th:href="@{/appointments/approve/{id}(id=${appt.id})}" 
+                                       class="btn btn-sm btn-outline-primary px-3 py-1" style="font-size: 12px; border-radius: 6px;">
+                                        <i class="bi bi-hand-thumbs-up"></i> Approve
+                                    </a>
+                                    <!-- Complete action (only for APPROVED) -->
+                                    <a th:if="${appt.status == 'APPROVED'}" 
+                                       th:href="@{/appointments/complete/{id}(id=${appt.id})}" 
                                        class="btn btn-sm btn-outline-success px-3 py-1" style="font-size: 12px; border-radius: 6px;">
                                         <i class="bi bi-check2-circle"></i> Complete
                                     </a>
-                                    <a th:href="@{/appointments/cancel/{id}(id=${appt.id})}" 
+                                    <!-- Cancel action -->
+                                    <a th:if="${appt.status == 'PENDING' || appt.status == 'APPROVED'}"
+                                       th:href="@{/appointments/cancel/{id}(id=${appt.id})}" 
                                        class="btn btn-sm btn-outline-danger px-3 py-1"
                                        style="font-size: 12px; border-radius: 6px;"
                                        onclick="return confirmCancelAppointment();">
                                         <i class="bi bi-x-circle"></i> Cancel
                                     </a>
+                                    <span th:if="${appt.status == 'COMPLETED' || appt.status == 'CANCELLED'}" class="text-muted small">-</span>
                                 </div>
                             </td>
                         </tr>
-                        <!-- Fallback empty check by inspecting list for any SCHEDULED appts -->
-                        <tr th:if="${#lists.isEmpty(appointments.?[status == 'SCHEDULED'])}">
+                        <tr th:if="${#lists.isEmpty(appointments)}">
                             <td colspan="7" class="text-center py-5">
                                 <i class="bi bi-calendar-x fs-1 text-muted mb-3 d-block"></i>
-                                <p class="text-muted mb-0">No scheduled appointments. Click "Book Appointment" to add one.</p>
+                                <p class="text-muted mb-0">No records found.</p>
                             </td>
                         </tr>
                     </tbody>

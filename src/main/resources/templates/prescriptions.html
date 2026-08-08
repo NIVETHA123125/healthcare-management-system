@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(content=~{::#prescriptions-content}, headerTitle='Prescriptions Management')}">
+<body>
+    <div id="prescriptions-content">
+        <!-- Dynamic Alert Banners -->
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert" style="border-radius: 8px;">
+            <i class="bi bi-check-circle-fill me-2"></i> <span th:text="${successMessage}">Success!</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" role="alert" style="border-radius: 8px;">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> <span th:text="${errorMessage}">Error!</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <!-- Action Bar Card -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-file-earmark-medical-fill text-primary fs-5"></i>
+                    <h4 class="mb-0 fs-5 fw-bold" style="text-transform: none; color: var(--medical-dark);">Patient Prescriptions</h4>
+                </div>
+                <a th:href="@{/prescriptions/add}" class="btn btn-primary d-inline-flex align-items-center gap-2 px-4" style="border-radius: 8px;">
+                    <i class="bi bi-plus-circle"></i> Prescribe Medicine
+                </a>
+            </div>
+        </div>
+
+        <!-- Search and Action Bar Card -->
+        <div class="card border-0 shadow-sm mb-4 p-3">
+            <form th:action="@{/prescriptions}" method="GET">
+                <div class="row g-3 align-items-center">
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0 text-muted">
+                                <i class="bi bi-search"></i>
+                            </span>
+                            <input type="text" name="search" th:value="${search}" placeholder="Search patient, medication, ID..." class="form-control border-start-0 ps-0" style="border-radius: 0 8px 8px 0; outline: none; box-shadow: none;">
+                        </div>
+                    </div>
+                    <div class="col-md-3" th:if="${!isDoctorRole}">
+                        <select name="doctorId" class="form-select" style="border-radius: 8px;">
+                            <option value="">All Doctors</option>
+                            <option th:each="doc : ${doctors}" th:value="${doc.id}" th:text="${'Dr. ' + doc.fullName}" th:selected="${selectedDoctorId == doc.id}">Doctor</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="date" name="date" th:value="${date}" class="form-control" style="border-radius: 8px;">
+                    </div>
+                    <div class="col-md d-flex gap-2 justify-content-md-end">
+                        <button type="submit" class="btn btn-primary px-3" style="border-radius: 8px;">Filter</button>
+                        <a th:href="@{/prescriptions}" class="btn btn-outline-secondary px-3" style="border-radius: 8px;">Clear</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Table Card -->
+        <div class="card border-0 shadow-sm p-0 overflow-hidden">
+            <div class="px-4 py-3 border-bottom border-light bg-light d-flex align-items-center gap-2">
+                <i class="bi bi-list-task text-primary"></i>
+                <span class="text-uppercase fw-bold fs-7 text-muted tracking-wider">Issued Prescriptions</span>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th style="width: 80px;">ID</th>
+                            <th>Date</th>
+                            <th>Patient Name</th>
+                            <th>Prescribed By</th>
+                            <th>Medication</th>
+                            <th>Dosage</th>
+                            <th>Duration</th>
+                            <th>Instructions</th>
+                            <th class="text-end" style="width: 120px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="prescription : ${prescriptions}">
+                            <td class="fw-semibold text-primary" th:text="${prescription.id}">1</td>
+                            <td class="fw-bold text-dark" th:text="${prescription.prescribedDate}">2026-06-30</td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="user-avatar-circle" style="width: 32px; height: 32px; font-size: 12px;" th:text="${#strings.substring(prescription.patient.fullName, 0, 1)}">P</div>
+                                    <span class="fw-bold" th:text="${prescription.patient.fullName}">John Doe</span>
+                                </div>
+                            </td>
+                            <td class="text-muted" th:text="${'Dr. ' + prescription.doctor.fullName}">Dr. House</td>
+                            <td class="fw-bold text-success" th:text="${prescription.medication}">Paracetamol</td>
+                            <td th:text="${prescription.dosage}">1-0-1</td>
+                            <td>
+                                <span class="badge bg-info-subtle text-info border border-info-subtle px-2 py-1 rounded-pill" th:text="${prescription.duration}">5 Days</span>
+                            </td>
+                            <td th:text="${prescription.instructions}">Take after food</td>
+                            <td class="text-end">
+                                <a th:href="@{/prescriptions/delete/{id}(id=${prescription.id})}" 
+                                   class="btn btn-sm btn-outline-danger px-3 py-1"
+                                   style="font-size: 12px; border-radius: 6px;"
+                                   onclick="return confirm('Are you sure you want to delete this prescription?');">
+                                    <i class="bi bi-trash"></i> Delete
+                                </a>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(prescriptions)}">
+                            <td colspan="9" class="text-center py-5">
+                                <i class="bi bi-file-earmark-x fs-1 text-muted mb-3 d-block"></i>
+                                <p class="text-muted mb-0">No records found.</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

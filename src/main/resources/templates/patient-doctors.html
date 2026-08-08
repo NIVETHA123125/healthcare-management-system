@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(content=~{::#doctors-content}, headerTitle='Doctor Directory')}">
+<body>
+    <div id="doctors-content">
+        <!-- Search and Action Bar Card -->
+        <div class="card border-0 shadow-sm mb-4 p-3">
+            <form th:action="@{/patient/doctors}" method="GET">
+                <div class="row g-3 align-items-center">
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0 text-muted">
+                                <i class="bi bi-search"></i>
+                            </span>
+                            <input type="text" name="search" th:value="${search}" placeholder="Search doctor by name..." class="form-control border-start-0 ps-0" style="border-radius: 0 8px 8px 0; outline: none; box-shadow: none;">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <select name="spec" class="form-select" style="border-radius: 8px;">
+                            <option value="">All Specializations</option>
+                            <option th:each="s : ${specializations}" th:value="${s}" th:text="${s}" th:selected="${spec == s}">Specialization</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select name="status" class="form-select" style="border-radius: 8px;">
+                            <option value="">All Statuses</option>
+                            <option value="Available" th:selected="${status == 'Available'}">Available</option>
+                            <option value="Unavailable" th:selected="${status == 'Unavailable'}">Unavailable</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-flex gap-2 justify-content-md-end">
+                        <button type="submit" class="btn btn-primary w-100" style="border-radius: 8px;">Filter</button>
+                        <a th:href="@{/patient/doctors}" class="btn btn-outline-secondary px-3" style="border-radius: 8px;">Clear</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Table Card -->
+        <div class="card border-0 shadow-sm p-0 overflow-hidden">
+            <div class="px-4 py-3 border-bottom border-light bg-light d-flex align-items-center gap-2">
+                <i class="bi bi-person-badge-fill text-primary"></i>
+                <h4 class="mb-0 fs-6 fw-bold" style="text-transform: none; color: var(--medical-dark);">Medical Specialists</h4>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Practitioner</th>
+                            <th>Specialization</th>
+                            <th>Qualification</th>
+                            <th>Consultation Fee</th>
+                            <th>Availability Info</th>
+                            <th class="text-end" style="width: 180px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="doctor : ${doctors}">
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="user-avatar-circle" style="width: 32px; height: 32px; font-size: 12px;" th:text="${#strings.substring(doctor.fullName, 0, 1)}">D</div>
+                                    <div>
+                                        <div class="fw-bold" th:text="${'Dr. ' + doctor.fullName}">Dr. Gregory House</div>
+                                        <div class="small text-muted font-mono" style="font-size: 11px;" th:text="${doctor.gender}">Male</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-info-subtle text-info border border-info-subtle px-2 py-1 rounded-pill" th:text="${doctor.specialization}">Cardiology</span>
+                            </td>
+                            <td th:text="${doctor.qualification != null ? doctor.qualification : 'MD'}">MD</td>
+                            <td class="fw-bold text-dark font-mono small" th:text="${doctor.consultationFee != null ? '₹' + #numbers.formatDecimal(doctor.consultationFee, 1, 2) : 'Free'}">₹100.00</td>
+                            <td>
+                                <div class="small text-muted" th:text="${doctor.availabilityHours}">09:00 AM - 05:00 PM</div>
+                                <span class="badge px-2 py-1 rounded" 
+                                      th:classappend="${doctor.availabilityStatus == 'Available' ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-danger-subtle text-danger border border-danger-subtle'}" 
+                                      th:text="${doctor.availabilityStatus != null ? doctor.availabilityStatus : 'Available'}">Available</span>
+                            </td>
+                            <td class="text-end">
+                                <a th:if="${doctor.availabilityStatus == 'Available'}" th:href="@{/patient/appointments/book(doctorId=${doctor.id})}" class="btn btn-sm btn-primary px-3 py-1" style="font-size: 12px; border-radius: 6px;">
+                                    <i class="bi bi-calendar-plus"></i> Book
+                                </a>
+                                <span th:if="${doctor.availabilityStatus != 'Available'}" class="text-muted small">Not Available</span>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(doctors)}">
+                            <td colspan="6" class="text-center py-5">
+                                <i class="bi bi-heart-pulse fs-1 text-muted mb-3 d-block"></i>
+                                <p class="text-muted mb-0">No records found.</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

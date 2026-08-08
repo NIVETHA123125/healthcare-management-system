@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(content=~{::#doctor-dashboard-content}, headerTitle='Doctor Portal Dashboard')}">
+<body>
+    <div id="doctor-dashboard-content">
+        <!-- Welcome Section -->
+        <div class="card border-0 shadow-sm mb-4 p-4 text-white" style="background: linear-gradient(135deg, var(--primary-medical) 0%, #1c5233 100%); border-radius: 12px !important;">
+            <div class="d-flex align-items-center gap-3">
+                <div class="user-avatar-circle border border-white border-2" style="width: 60px; height: 60px; font-size: 24px; background: rgba(255, 255, 255, 0.15);" th:text="${#strings.substring(session.loggedInUser.fullName, 0, 1)}">D</div>
+                <div>
+                    <h3 class="mb-1 fw-bold text-white" style="text-transform: none;" th:text="${greeting}">Good Morning, Dr. Gregory House 👋</h3>
+                    <p class="mb-0 small text-white-50" th:text="${greetingSub}">You have 5 appointments today and 3 pending prescriptions.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions Section -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-3">
+                <div class="d-flex flex-wrap gap-2 justify-content-center justify-content-md-start">
+                    <a th:href="@{/doctor/appointments}" class="btn btn-primary d-inline-flex align-items-center gap-2 px-3 py-2" style="border-radius: 8px; font-size: 13px;">
+                        <i class="bi bi-calendar3"></i> View Today's Appointments
+                    </a>
+                    <a th:href="@{/doctor/patients}" class="btn btn-outline-primary d-inline-flex align-items-center gap-2 px-3 py-2" style="border-radius: 8px; font-size: 13px;">
+                        <i class="bi bi-people-fill"></i> View My Patients
+                    </a>
+                    <a th:href="@{/prescriptions}" class="btn btn-outline-primary d-inline-flex align-items-center gap-2 px-3 py-2" style="border-radius: 8px; font-size: 13px;">
+                        <i class="bi bi-file-earmark-plus"></i> Issue Prescription
+                    </a>
+                    <a th:href="@{/doctor/appointments}" class="btn btn-outline-primary d-inline-flex align-items-center gap-2 px-3 py-2" style="border-radius: 8px; font-size: 13px;">
+                        <i class="bi bi-file-earmark-medical"></i> View Medical Records
+                    </a>
+                    <a th:href="@{/notifications}" class="btn btn-outline-primary d-inline-flex align-items-center gap-2 px-3 py-2" style="border-radius: 8px; font-size: 13px;">
+                        <i class="bi bi-bell"></i> View Notifications
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Summary Cards Grid -->
+        <div class="row g-3 mb-4">
+            <!-- 1. Total Patients Treated -->
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="card h-100 border-0 shadow-sm p-3">
+                    <div class="d-flex align-items-center gap-2 text-success mb-2">
+                        <i class="bi bi-people fs-5"></i>
+                        <span class="fw-bold small text-muted text-uppercase tracking-wider" style="font-size: 10px;">Total Patients</span>
+                    </div>
+                    <h4 class="fw-bold text-dark mb-0" th:text="${totalPatients + ' Patients'}">0 Patients</h4>
+                </div>
+            </div>
+
+            <!-- 2. Today's Appointments -->
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="card h-100 border-0 shadow-sm p-3">
+                    <div class="d-flex align-items-center gap-2 text-primary mb-2">
+                        <i class="bi bi-calendar-check fs-5"></i>
+                        <span class="fw-bold small text-muted text-uppercase tracking-wider" style="font-size: 10px;">Today's Slots</span>
+                    </div>
+                    <h4 class="fw-bold text-dark mb-0" th:text="${todayAppointmentsCount + ' Slots'}">0 Slots</h4>
+                </div>
+            </div>
+
+            <!-- 3. Upcoming Appointments -->
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="card h-100 border-0 shadow-sm p-3">
+                    <div class="d-flex align-items-center gap-2 text-info mb-2">
+                        <i class="bi bi-calendar-event fs-5"></i>
+                        <span class="fw-bold small text-muted text-uppercase tracking-wider" style="font-size: 10px;">Upcoming</span>
+                    </div>
+                    <h4 class="fw-bold text-dark mb-0" th:text="${upcomingAppointmentsCount + ' Bookings'}">0 Bookings</h4>
+                </div>
+            </div>
+
+            <!-- 4. Completed Consultations -->
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="card h-100 border-0 shadow-sm p-3">
+                    <div class="d-flex align-items-center gap-2 text-warning mb-2">
+                        <i class="bi bi-check-circle fs-5"></i>
+                        <span class="fw-bold small text-muted text-uppercase tracking-wider" style="font-size: 10px;">Completed</span>
+                    </div>
+                    <h4 class="fw-bold text-dark mb-0" th:text="${completedConsultationsCount + ' Done'}">0 Done</h4>
+                </div>
+            </div>
+
+            <!-- 5. Pending Prescriptions -->
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="card h-100 border-0 shadow-sm p-3">
+                    <div class="d-flex align-items-center gap-2 text-danger mb-2">
+                        <i class="bi bi-capsule-solid bi-capsule fs-5"></i>
+                        <span class="fw-bold small text-muted text-uppercase tracking-wider" style="font-size: 10px;">Pending Rx</span>
+                    </div>
+                    <h4 class="fw-bold text-dark mb-0" th:text="${pendingPrescriptionsCount + ' Pending'}">0 Pending</h4>
+                </div>
+            </div>
+
+            <!-- 6. Notifications -->
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="card h-100 border-0 shadow-sm p-3">
+                    <div class="d-flex align-items-center gap-2 text-secondary mb-2">
+                        <i class="bi bi-bell fs-5"></i>
+                        <span class="fw-bold small text-muted text-uppercase tracking-wider" style="font-size: 10px;">Unread Alerts</span>
+                    </div>
+                    <h4 class="fw-bold text-dark mb-0" th:text="${unreadNotificationCount + ' Unread'}">0 Unread</h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-4">
+            <!-- Left Side: Appointments & Consultations -->
+            <div class="col-lg-8">
+                <!-- Next Appointment Section -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="px-4 py-3 border-bottom border-light bg-light d-flex align-items-center gap-2">
+                        <i class="bi bi-alarm-fill text-primary"></i>
+                        <h5 class="mb-0 fw-bold text-dark" style="font-size: 15px;">Next Scheduled Appointment</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div th:if="${nextAppointment != null}" class="d-flex flex-column gap-3">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <span class="text-muted small d-block">Patient Name</span>
+                                    <span class="fw-bold text-dark fs-6" th:text="${nextAppointment.patient.fullName}">Vivek</span>
+                                    <span class="badge bg-light text-dark border ms-2" th:text="${nextAppointment.patient.gender}">Male</span>
+                                </div>
+                                <div class="col-md-6">
+                                    <span class="text-muted small d-block">Date &amp; Time</span>
+                                    <span class="fw-bold text-dark font-mono" th:text="${#temporals.format(nextAppointment.appointmentDate, 'dd-MMM-yyyy hh:mm a')}">05-Jul-2026 03:00 PM</span>
+                                </div>
+                            </div>
+                            <div class="row g-3 border-top border-light pt-2">
+                                <div class="col-md-6">
+                                    <span class="text-muted small d-block">Reason for Visit</span>
+                                    <p class="text-muted mb-0 small" th:text="${nextAppointment.notes != null ? nextAppointment.notes : 'General Checkup'}">Fever</p>
+                                </div>
+                                <div class="col-md-6 d-flex gap-2 align-items-center justify-content-md-end mt-2">
+                                    <span class="status-pill status-pill-approved me-2" th:text="${nextAppointment.status}">Approved</span>
+                                    <a th:href="@{/doctor/appointments}" class="btn btn-sm btn-outline-primary px-3" style="border-radius: 6px;">View Details</a>
+                                    <a th:href="@{/consultations/add(appointmentId=${nextAppointment.id})}" class="btn btn-sm btn-primary px-3" style="border-radius: 6px;">Start Consultation</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div th:if="${nextAppointment == null}" class="text-center py-4 text-muted">
+                            <i class="bi bi-calendar-x fs-3 mb-2 d-block"></i>
+                            <p class="mb-0 small">No upcoming appointments scheduled.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Today's Appointment Schedule -->
+                <div class="card border-0 shadow-sm mb-4 p-0 overflow-hidden">
+                    <div class="px-4 py-3 border-bottom border-light bg-light d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-calendar3-event text-primary"></i>
+                            <h5 class="mb-0 fw-bold text-dark" style="font-size: 15px;">Today's Appointment Schedule</h5>
+                        </div>
+                        <a th:href="@{/doctor/appointments}" class="small text-decoration-none">View All</a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0" th:if="${not #lists.isEmpty(todayAppointments)}">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Patient</th>
+                                    <th>Gender/Age</th>
+                                    <th>Reason for Visit</th>
+                                    <th>Status</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="appt : ${todayAppointments}">
+                                    <td class="font-mono fw-bold text-dark" th:text="${#temporals.format(appt.appointmentDate, 'hh:mm a')}">10:00 AM</td>
+                                    <td class="fw-bold" th:text="${appt.patient.fullName}">Vivek</td>
+                                    <td th:text="${appt.patient.gender + ' / ' + appt.patient.dob}">Male / 1990-01-01</td>
+                                    <td class="text-muted small" th:text="${appt.notes != null ? appt.notes : 'General Checkup'}">Fever</td>
+                                    <td>
+                                        <span class="status-pill" th:classappend="${
+                                            appt.status == 'APPROVED' ? 'status-pill-approved' :
+                                            appt.status == 'COMPLETED' ? 'status-pill-completed' :
+                                            'status-pill-pending'
+                                        }" th:text="${appt.status}">PENDING</span>
+                                    </td>
+                                    <td class="text-end">
+                                        <div class="d-inline-flex gap-2">
+                                            <a th:if="${appt.status != 'COMPLETED'}" th:href="@{/consultations/add(appointmentId=${appt.id})}" class="btn btn-sm btn-primary py-1 px-2" style="font-size: 11px; border-radius: 6px;">Start Consultation</a>
+                                            <a th:href="@{/doctor/patients/records/{id}(id=${appt.patient.id})}" class="btn btn-sm btn-outline-secondary py-1 px-2" style="font-size: 11px; border-radius: 6px;">View Medical History</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div th:if="${#lists.isEmpty(todayAppointments)}" class="text-center py-5">
+                            <i class="bi bi-calendar-check text-muted fs-3 mb-2 d-block"></i>
+                            <p class="text-muted small mb-0">No appointments scheduled for today.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Consultations Section -->
+                <div class="card border-0 shadow-sm mb-0 p-0 overflow-hidden">
+                    <div class="px-4 py-3 border-bottom border-light bg-light d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-file-earmark-text text-primary"></i>
+                            <h5 class="mb-0 fw-bold text-dark" style="font-size: 15px;">Recent Consultations</h5>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0" th:if="${not #lists.isEmpty(recentConsultations)}">
+                            <thead>
+                                <tr>
+                                    <th>Patient</th>
+                                    <th>Diagnosis</th>
+                                    <th>Date</th>
+                                    <th>Prescription Status</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="cons : ${recentConsultations}">
+                                    <td class="fw-bold" th:text="${cons.patient.fullName}">Patient Name</td>
+                                    <td class="text-muted small" th:text="${cons.diagnosis}">Diagnosis Details</td>
+                                    <td class="font-mono small" th:text="${#temporals.format(cons.createdDate, 'dd-MMM-yyyy hh:mm a')}">05-Jul-2026</td>
+                                    <td>
+                                        <span class="badge" th:classappend="${cons.prescription != null && !cons.prescription.trim().isEmpty() ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-warning-subtle text-warning border border-warning-subtle'}" th:text="${cons.prescription != null && !cons.prescription.trim().isEmpty() ? 'ISSUED' : 'PENDING'}">ISSUED</span>
+                                    </td>
+                                    <td class="text-end">
+                                        <div class="d-inline-flex gap-2">
+                                            <a th:href="@{/doctor/patients/records/{id}(id=${cons.patient.id})}" class="btn btn-sm btn-outline-secondary py-1 px-2" style="font-size: 11px; border-radius: 6px;">View Medical History</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div th:if="${#lists.isEmpty(recentConsultations)}" class="text-center py-5">
+                            <i class="bi bi-journal-text text-muted fs-3 mb-2 d-block"></i>
+                            <p class="text-muted small mb-0">No patients treated yet.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Schedule Timeline, Tasks, Notifications -->
+            <div class="col-lg-4">
+                <!-- Optional Schedule Widget (Timeline) -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="px-4 py-3 border-bottom border-light bg-light d-flex align-items-center gap-2">
+                        <i class="bi bi-clock-history text-primary"></i>
+                        <h5 class="mb-0 fw-bold text-dark" style="font-size: 15px;">Today's Timeline</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="d-flex flex-column gap-3" th:if="${not #lists.isEmpty(todayAppointments)}">
+                            <div th:each="appt : ${todayAppointments}" class="d-flex align-items-center gap-3 border-start border-2 border-primary ps-3 position-relative">
+                                <div class="position-absolute bg-primary rounded-circle" style="width: 8px; height: 8px; left: -5px; top: 8px;"></div>
+                                <div>
+                                    <span class="font-mono text-muted small d-block" th:text="${#temporals.format(appt.appointmentDate, 'hh:mm a')}">10:00 AM</span>
+                                    <span class="fw-bold text-dark" th:text="${appt.patient.fullName}">Vivek</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div th:if="${#lists.isEmpty(todayAppointments)}" class="text-center py-3 text-muted small">
+                            No appointments scheduled for today.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Prescription Statistics Widget -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="px-4 py-3 border-bottom border-light bg-light d-flex align-items-center gap-2">
+                        <i class="bi bi-bar-chart-fill text-success"></i>
+                        <h5 class="mb-0 fw-bold text-dark" style="font-size: 15px;">Prescription Statistics</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between border-bottom pb-2 border-light mb-2">
+                            <span class="text-muted small">Prescriptions Issued This Month</span>
+                            <span class="fw-bold text-dark" th:text="${prescriptionsIssuedThisMonth}">28</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted small">Pending Prescriptions</span>
+                            <span class="fw-bold text-danger" th:text="${prescriptionsPending}">3</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pending Tasks Section -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="px-4 py-3 border-bottom border-light bg-light d-flex align-items-center gap-2">
+                        <i class="bi bi-check2-square text-primary"></i>
+                        <h5 class="mb-0 fw-bold text-dark" style="font-size: 15px;">Pending Tasks</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="d-flex flex-column gap-3">
+                            <!-- Show pending prescriptions -->
+                            <div th:each="appt : ${todayAppointments}" th:if="${appt.status == 'COMPLETED'}" class="d-flex align-items-start gap-2">
+                                <i class="bi bi-check-circle text-muted mt-1 small"></i>
+                                <span class="small text-muted" th:text="${'Issue prescription for ' + appt.patient.fullName + '.'}">Issue prescription for Vivek.</span>
+                            </div>
+                            <div class="d-flex align-items-start gap-2">
+                                <i class="bi bi-check-circle text-muted mt-1 small"></i>
+                                <span class="small text-muted">Review patient medical reports.</span>
+                            </div>
+                            <div class="d-flex align-items-start gap-2">
+                                <i class="bi bi-check-circle text-muted mt-1 small"></i>
+                                <span class="small text-muted">Approve appointment reschedule requests.</span>
+                            </div>
+                            <div class="d-flex align-items-start gap-2">
+                                <i class="bi bi-check-circle text-muted mt-1 small"></i>
+                                <span class="small text-muted">Update consultation notes.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notifications Section -->
+                <div class="card border-0 shadow-sm">
+                    <div class="px-4 py-3 border-bottom border-light bg-light d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-bell text-primary"></i>
+                            <h5 class="mb-0 fw-bold text-dark" style="font-size: 15px;">Recent Notifications</h5>
+                        </div>
+                        <a th:href="@{/notifications}" class="small text-decoration-none">View All</a>
+                    </div>
+                    <div class="card-body p-3">
+                        <div class="d-flex flex-column gap-2" th:if="${not #lists.isEmpty(recentNotifications)}">
+                            <div th:each="notif : ${recentNotifications}" class="p-3 bg-light rounded-3 d-flex gap-2" style="border-radius: 8px;">
+                                <i class="bi bi-info-circle-fill text-primary mt-1"></i>
+                                <div>
+                                    <div class="fw-bold text-dark small" th:text="${notif.title}">Title</div>
+                                    <p class="mb-1 text-muted small" style="line-height: 1.3;" th:text="${notif.message}">Message</p>
+                                    <span class="text-muted font-mono" style="font-size: 9px;" th:text="${#temporals.format(notif.createdAt, 'dd-MMM hh:mm a')}">Date</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div th:if="${#lists.isEmpty(recentNotifications)}" class="text-center py-4">
+                            <i class="bi bi-bell-slash text-muted fs-3 mb-2 d-block"></i>
+                            <p class="text-muted small mb-0">No notifications.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

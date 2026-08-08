@@ -18,6 +18,7 @@
                             <span class="input-group-text bg-white text-muted"><i class="bi bi-person"></i></span>
                             <input type="text" id="firstName" th:field="*{firstName}" class="form-control" placeholder="e.g. John" required autocomplete="given-name">
                         </div>
+                        <div class="text-danger small mt-1" id="firstNameError" th:if="${firstNameError}" th:text="${firstNameError}"></div>
                     </div>
                     <div class="col-md-6">
                         <label for="lastName" class="form-label fw-semibold text-muted small">Last Name</label>
@@ -25,6 +26,7 @@
                             <span class="input-group-text bg-white text-muted"><i class="bi bi-person"></i></span>
                             <input type="text" id="lastName" th:field="*{lastName}" class="form-control" placeholder="e.g. Doe" required autocomplete="family-name">
                         </div>
+                        <div class="text-danger small mt-1" id="lastNameError" th:if="${lastNameError}" th:text="${lastNameError}"></div>
                     </div>
                 </div>
 
@@ -35,13 +37,15 @@
                             <span class="input-group-text bg-white text-muted"><i class="bi bi-envelope"></i></span>
                             <input type="email" id="email" th:field="*{email}" class="form-control" placeholder="john.doe@example.com" required autocomplete="email">
                         </div>
+                        <div class="text-danger small mt-1" id="emailError" th:if="${emailError}" th:text="${emailError}"></div>
                     </div>
                     <div class="col-md-6">
                         <label for="phone" class="form-label fw-semibold text-muted small">Phone Number</label>
                         <div class="input-group">
                             <span class="input-group-text bg-white text-muted"><i class="bi bi-telephone"></i></span>
-                            <input type="text" id="phone" th:field="*{phone}" class="form-control" placeholder="e.g. +1 (555) 019-2834" autocomplete="tel">
+                            <input type="text" id="phone" th:field="*{phone}" class="form-control" placeholder="e.g. 9876543210" autocomplete="tel">
                         </div>
+                        <div class="text-danger small mt-1" id="phoneError" th:if="${phoneError}" th:text="${phoneError}"></div>
                     </div>
                 </div>
 
@@ -84,5 +88,57 @@
             </form>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            if (form) {
+                form.addEventListener('submit', function(event) {
+                    // Clear previous errors
+                    document.querySelectorAll('.text-danger.small').forEach(el => el.textContent = '');
+
+                    let hasErrors = false;
+
+                    const firstName = document.getElementById('firstName').value.trim();
+                    const lastName = document.getElementById('lastName').value.trim();
+                    const email = document.getElementById('email').value.trim();
+                    const phone = document.getElementById('phone').value.trim();
+
+                    if (!firstName) {
+                        const err = document.getElementById('firstNameError');
+                        if (err) err.textContent = 'First Name cannot be empty.';
+                        hasErrors = true;
+                    }
+
+                    if (!lastName) {
+                        const err = document.getElementById('lastNameError');
+                        if (err) err.textContent = 'Last Name cannot be empty.';
+                        hasErrors = true;
+                    }
+
+                    // Email validation
+                    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                    if (!emailRegex.test(email)) {
+                        const err = document.getElementById('emailError');
+                        if (err) err.textContent = 'Please enter a valid email address.';
+                        hasErrors = true;
+                    }
+
+                    // Phone validation
+                    const phoneRegex = /^[6-9]\d{9}$/;
+                    if (!phoneRegex.test(phone)) {
+                        const err = document.getElementById('phoneError');
+                        if (err) err.textContent = 'Please enter a valid 10-digit phone number.';
+                        hasErrors = true;
+                    }
+
+                    if (hasErrors) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>

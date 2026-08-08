@@ -40,6 +40,9 @@ public class Patient {
     @Column(columnDefinition = "TEXT")
     private String medicalHistory;
 
+    @Column(name = "registration_date")
+    private LocalDate registrationDate = LocalDate.now();
+
     // Helper method to get full name
     public String getFullName() {
         return firstName + " " + lastName;

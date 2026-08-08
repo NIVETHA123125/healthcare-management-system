@@ -34,6 +34,27 @@ public class Doctor {
     @Column(length = 100)
     private String availabilityHours; // e.g., "09:00 AM - 05:00 PM"
 
+    @Column(length = 10)
+    private String gender;
+
+    @Column(length = 100)
+    private String qualification;
+
+    @Column
+    private Integer experience; // years
+
+    @Column(name = "consultation_fee")
+    private Double consultationFee;
+
+    @Column(name = "availability_status", length = 20)
+    private String availabilityStatus; // e.g., "Available", "Unavailable"
+
+    @Column
+    private java.time.LocalDate dob;
+
+    @Column(columnDefinition = "TEXT")
+    private String address;
+
     // Helper method to get full name
     public String getFullName() {
         return firstName + " " + lastName;

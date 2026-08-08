@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(content=~{::#settings-container}, headerTitle=#{settings.title})}">
+<body>
+    <div id="settings-container" class="container-fluid p-0">
+        <!-- Toast Notification Area -->
+        <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1080;">
+            <div id="settingsToast" class="toast align-items-center border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true" style="border-radius: 10px;">
+                <div class="d-flex">
+                    <div class="toast-body d-flex align-items-center gap-2 fw-semibold text-white">
+                        <i class="bi bi-info-circle-fill"></i>
+                        <span id="toastMessage">Changes saved successfully.</span>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Settings Sidebar Navigation -->
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm p-3">
+                    <div class="nav flex-column nav-pills" id="settings-tabs" role="tablist" aria-orientation="vertical">
+                        <!-- Profile Settings -->
+                        <button class="nav-link active text-start d-flex align-items-center gap-2 py-3 rounded-3" id="profile-tab" data-bs-toggle="pill" data-bs-target="#profile-panel" type="button" role="tab">
+                            <i class="bi bi-person-circle fs-5"></i> <span th:text="#{settings.profile.title}">Profile</span>
+                        </button>
+                        <!-- Security -->
+                        <button class="nav-link text-start d-flex align-items-center gap-2 py-3 rounded-3" id="security-tab" data-bs-toggle="pill" data-bs-target="#security-panel" type="button" role="tab">
+                            <i class="bi bi-shield-lock-fill fs-5"></i> <span th:text="#{settings.security.title}">Security</span>
+                        </button>
+                        <!-- Appearance -->
+                        <button class="nav-link text-start d-flex align-items-center gap-2 py-3 rounded-3" id="appearance-tab" data-bs-toggle="pill" data-bs-target="#appearance-panel" type="button" role="tab">
+                            <i class="bi bi-palette-fill fs-5"></i> <span th:text="#{settings.appearance.title}">Appearance</span>
+                        </button>
+                        <!-- Language -->
+                        <button class="nav-link text-start d-flex align-items-center gap-2 py-3 rounded-3" id="language-tab" data-bs-toggle="pill" data-bs-target="#language-panel" type="button" role="tab">
+                            <i class="bi bi-translate fs-5"></i> <span th:text="#{settings.language.title}">Language</span>
+                        </button>
+                        <!-- Notifications -->
+                        <button class="nav-link text-start d-flex align-items-center gap-2 py-3 rounded-3" id="notifications-tab" data-bs-toggle="pill" data-bs-target="#notifications-panel" type="button" role="tab">
+                            <i class="bi bi-bell-fill fs-5"></i> <span th:text="#{settings.notifications.title}">Notifications</span>
+                        </button>
+                        <!-- Accessibility -->
+                        <button class="nav-link text-start d-flex align-items-center gap-2 py-3 rounded-3" id="accessibility-tab" data-bs-toggle="pill" data-bs-target="#accessibility-panel" type="button" role="tab">
+                            <i class="bi bi-universal-access-circle fs-5"></i> <span th:text="#{settings.accessibility.title}">Accessibility</span>
+                        </button>
+                        <!-- Privacy -->
+                        <button class="nav-link text-start d-flex align-items-center gap-2 py-3 rounded-3" id="privacy-tab" data-bs-toggle="pill" data-bs-target="#privacy-panel" type="button" role="tab">
+                            <i class="bi bi-eye-slash-fill fs-5"></i> <span th:text="#{settings.privacy.title}">Privacy</span>
+                        </button>
+                        <!-- Role-Specific settings -->
+                        <button class="nav-link text-start d-flex align-items-center gap-2 py-3 rounded-3" id="role-tab" data-bs-toggle="pill" data-bs-target="#role-panel" type="button" role="tab">
+                            <i class="bi bi-sliders fs-5"></i> <span>Portal Properties</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Content Panels -->
+            <div class="col-md-9">
+                <div class="tab-content" id="settings-tabContent">
+                    
+                    <!-- Tab 1: Profile Settings -->
+                    <div class="tab-pane fade show active" id="profile-panel" role="tabpanel">
+                        <div class="card border-0 shadow-sm p-4">
+                            <h4 class="fw-bold mb-1 text-dark" th:text="#{settings.profile.title}">Profile Settings</h4>
+                            <p class="text-muted small mb-4">View and update your personal information.</p>
+                            <form id="profileForm" class="settings-form">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small">Full Name</label>
+                                        <input type="text" name="fullName" class="form-control" th:value="${session.loggedInUser.fullName}" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small">Phone Number</label>
+                                        <input type="text" name="phone" class="form-control" th:value="${session.loggedInUser.patient != null ? session.loggedInUser.patient.phone : (session.loggedInUser.doctor != null ? session.loggedInUser.doctor.phone : '')}" required>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <label class="form-label text-muted small">Email Address</label>
+                                        <input type="email" name="email" class="form-control" th:value="${session.loggedInUser.patient != null ? session.loggedInUser.patient.email : (session.loggedInUser.doctor != null ? session.loggedInUser.doctor.email : session.loggedInUser.username)}" required>
+                                        <div class="form-text small text-muted">Changing email address triggers verification.</div>
+                                    </div>
+                                    <div class="col-md-12" th:if="${session.loggedInUser.patient != null}">
+                                        <label class="form-label text-muted small">Home Address</label>
+                                        <textarea name="address" rows="3" class="form-control" th:text="${session.loggedInUser.patient.address}"></textarea>
+                                    </div>
+                                    <div class="col-12 mt-4 border-top border-light pt-3 d-flex gap-2">
+                                        <button type="submit" class="btn btn-primary d-inline-flex align-items-center gap-2">
+                                            <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                                            <span th:text="#{settings.save}">Save</span>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-secondary" th:text="#{settings.cancel}" onclick="window.history.back()">Cancel</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Tab 2: Security -->
+                    <div class="tab-pane fade" id="security-panel" role="tabpanel">
+                        <div class="card border-0 shadow-sm p-4">
+                            <h4 class="fw-bold mb-1 text-dark" th:text="#{settings.security.title}">Security &amp; Password</h4>
+                            <p class="text-muted small mb-4">Manage password updates and login statistics.</p>
+                            <form id="securityForm" class="settings-form">
+                                <div class="row g-3">
+                                    <div class="col-md-12">
+                                        <label class="form-label text-muted small">Current Password</label>
+                                        <input type="password" name="currentPassword" class="form-control" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small">New Password</label>
+                                        <input type="password" name="newPassword" class="form-control" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small">Confirm New Password</label>
+                                        <input type="password" name="confirmPassword" class="form-control" required>
+                                    </div>
+                                    <div class="col-12 mt-4 border-top border-light pt-3 d-flex gap-2">
+                                        <button type="submit" class="btn btn-primary d-inline-flex align-items-center gap-2">
+                                            <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                                            <span th:text="#{settings.save}">Save</span>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-danger" id="logoutAllBtn">Logout From All Other Devices</button>
+                                    </div>
+                                </div>
+                            </form>
+
+                            <div class="mt-4 pt-4 border-top">
+                                <h6 class="fw-bold text-dark mb-3">Recent Login Activity</h6>
+                                <div class="list-group list-group-flush border-top border-bottom border-light">
+                                    <div class="list-group-item px-0 py-3 d-flex justify-content-between" th:each="act : ${loginActivity}">
+                                        <div>
+                                            <span class="fw-bold text-dark d-block small" th:text="${act.device}">Chrome on Windows</span>
+                                            <span class="text-muted font-mono" style="font-size: 11px;" th:text="${'IP: ' + act.ip}">IP: 192.168.1.1</span>
+                                        </div>
+                                        <span class="font-mono text-muted small" th:text="${act.date}">2026-07-07</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab 3: Appearance -->
+                    <div class="tab-pane fade" id="appearance-panel" role="tabpanel">
+                        <div class="card border-0 shadow-sm p-4">
+                            <h4 class="fw-bold mb-1 text-dark" th:text="#{settings.appearance.title}">App Appearance</h4>
+                            <p class="text-muted small mb-4">Toggle dark modes or visual properties instantly.</p>
+                            <form id="appearanceForm" class="settings-form">
+                                <div class="row g-3">
+                                    <div class="col-md-12">
+                                        <label class="form-label text-muted small">Visual Theme</label>
+                                        <select name="theme" class="form-select" id="themeSelect">
+                                            <option value="LIGHT" th:selected="${settings.theme == 'LIGHT'}" th:text="#{settings.theme.light}">Light Mode</option>
+                                            <option value="DARK" th:selected="${settings.theme == 'DARK'}" th:text="#{settings.theme.dark}">Dark Mode</option>
+                                            <option value="SYSTEM" th:selected="${settings.theme == 'SYSTEM'}" th:text="#{settings.theme.system}">System Default</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-12 mt-4 border-top border-light pt-3 d-flex gap-2">
+                                        <button type="submit" class="btn btn-primary d-inline-flex align-items-center gap-2">
+                                            <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                                            <span th:text="#{settings.save}">Save</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Tab 4: Language -->
+                    <div class="tab-pane fade" id="language-panel" role="tabpanel">
+                        <div class="card border-0 shadow-sm p-4">
+                            <h4 class="fw-bold mb-1 text-dark" th:text="#{settings.language.title}">Language Selection</h4>
+                            <p class="text-muted small mb-4">Translate menus, pages, and messages globally.</p>
+                            <form id="languageForm" class="settings-form">
+                                <div class="row g-3">
+                                    <div class="col-md-12">
+                                        <label class="form-label text-muted small">System Language</label>
+                                        <select name="language" class="form-select" id="languageSelect">
+                                            <option value="en" th:selected="${settings.language == 'en'}" th:text="#{settings.lang.en}">English</option>
+                                            <option value="ta" th:selected="${settings.language == 'ta'}" th:text="#{settings.lang.ta}">Tamil</option>
+                                            <option value="hi" th:selected="${settings.language == 'hi'}" th:text="#{settings.lang.hi}">Hindi</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-12 mt-4 border-top border-light pt-3 d-flex gap-2">
+                                        <button type="submit" class="btn btn-primary d-inline-flex align-items-center gap-2">
+                                            <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                                            <span th:text="#{settings.save}">Save</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Tab 5: Notifications -->
+                    <div class="tab-pane fade" id="notifications-panel" role="tabpanel">
+                        <div class="card border-0 shadow-sm p-4">
+                            <h4 class="fw-bold mb-1 text-dark" th:text="#{settings.notifications.title}">Alert Notifications</h4>
+                            <p class="text-muted small mb-4">Enable or disable delivery communication preferences.</p>
+                            <form id="notificationsForm" class="settings-form">
+                                <div class="d-flex flex-column gap-3 mb-4">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" name="emailNotifications" th:checked="${settings.emailNotifications}">
+                                        <label class="form-check-label text-dark small fw-semibold">Email Notifications</label>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" name="smsNotifications" th:checked="${settings.smsNotifications}">
+                                        <label class="form-check-label text-dark small fw-semibold">SMS Notifications</label>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" name="appointmentReminders" th:checked="${settings.appointmentReminders}">
+                                        <label class="form-check-label text-dark small fw-semibold">Appointment Reminders</label>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" name="systemAnnouncements" th:checked="${settings.systemAnnouncements}">
+                                        <label class="form-check-label text-dark small fw-semibold">System Announcements</label>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" name="pushNotifications" th:checked="${settings.pushNotifications}">
+                                        <label class="form-check-label text-dark small fw-semibold">Push Notifications</label>
+                                    </div>
+                                </div>
+                                <div class="border-top border-light pt-3">
+                                    <button type="submit" class="btn btn-primary d-inline-flex align-items-center gap-2">
+                                        <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                                        <span th:text="#{settings.save}">Save</span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Tab 6: Accessibility -->
+                    <div class="tab-pane fade" id="accessibility-panel" role="tabpanel">
+                        <div class="card border-0 shadow-sm p-4">
+                            <h4 class="fw-bold mb-1 text-dark" th:text="#{settings.accessibility.title}">Accessibility</h4>
+                            <p class="text-muted small mb-4">Set contrast levels and visual layouts tailored to your requirements.</p>
+                            <form id="accessibilityForm" class="settings-form">
+                                <div class="row g-3">
+                                    <div class="col-md-12">
+                                        <label class="form-label text-muted small">Global Font Scale</label>
+                                        <select name="fontSize" class="form-select" id="fontSelect">
+                                            <option value="SMALL" th:selected="${settings.fontSize == 'SMALL'}" th:text="#{settings.font.small}">Small</option>
+                                            <option value="MEDIUM" th:selected="${settings.fontSize == 'MEDIUM'}" th:text="#{settings.font.medium}">Medium</option>
+                                            <option value="LARGE" th:selected="${settings.fontSize == 'LARGE'}" th:text="#{settings.font.large}">Large</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-12 mt-3">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" name="highContrast" id="contrastCheck" th:checked="${settings.highContrast}">
+                                            <label class="form-check-label text-dark small fw-semibold" th:text="#{settings.contrast.high}">High Contrast</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 mt-3">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" name="reduceMotion" id="motionCheck" th:checked="${settings.reduceMotion}">
+                                            <label class="form-check-label text-dark small fw-semibold" th:text="#{settings.motion.reduce}">Reduce Motion</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 mt-3">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" name="keyboardNavigation" th:checked="${settings.keyboardNavigation}">
+                                            <label class="form-check-label text-dark small fw-semibold" th:text="#{settings.keyboard.nav}">Keyboard Nav</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 mt-4 border-top border-light pt-3 d-flex gap-2">
+                                        <button type="submit" class="btn btn-primary d-inline-flex align-items-center gap-2">
+                                            <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                                            <span th:text="#{settings.save}">Save</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Tab 7: Privacy -->
+                    <div class="tab-pane fade" id="privacy-panel" role="tabpanel">
+                        <div class="card border-0 shadow-sm p-4">
+                            <h4 class="fw-bold mb-1 text-dark" th:text="#{settings.privacy.title}">Privacy Control</h4>
+                            <p class="text-muted small mb-4">Manage details visibility, terms, and data exports.</p>
+                            <form id="privacyForm" class="settings-form">
+                                <div class="row g-3">
+                                    <div class="col-md-12">
+                                        <label class="form-label text-muted small">Personal Info Visibility</label>
+                                        <select name="personalInfoVisibility" class="form-select">
+                                            <option value="PUBLIC" th:selected="${settings.personalInfoVisibility == 'PUBLIC'}">Public (Visible to All)</option>
+                                            <option value="PRIVATE" th:selected="${settings.personalInfoVisibility == 'PRIVATE'}">Private (Hidden)</option>
+                                            <option value="MUTUAL" th:selected="${settings.personalInfoVisibility == 'MUTUAL'}">Mutual (Authorized Contacts only)</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12 mt-4 border-top border-light pt-3 d-flex flex-wrap gap-2">
+                                        <button type="submit" class="btn btn-primary d-inline-flex align-items-center gap-2">
+                                            <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                                            <span th:text="#{settings.save}">Save</span>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-primary" id="downloadDataBtn">Download Account Data</button>
+                                        <button type="button" class="btn btn-danger" id="deleteAccountBtn" th:if="${session.loggedInUser.role == 'ROLE_PATIENT' || session.loggedInUser.role == 'PATIENT'}">Delete Account Request</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Tab 8: Role-Specific Settings -->
+                    <div class="tab-pane fade" id="role-panel" role="tabpanel">
+                        <!-- Patient Properties -->
+                        <div class="card border-0 shadow-sm p-4" th:if="${session.loggedInUser.role == 'ROLE_PATIENT' || session.loggedInUser.role == 'PATIENT'}">
+                            <h4 class="fw-bold mb-1 text-dark">Medical Preferences</h4>
+                            <p class="text-muted small mb-4">Personalize your consulting hospitals, doctors, and emergency contacts.</p>
+                            <form id="patientSettingsForm" class="settings-form">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small">Preferred Hospital</label>
+                                        <input type="text" name="preferredHospital" class="form-control" th:value="${settings.preferredHospital}">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small">Preferred Doctor</label>
+                                        <input type="text" name="preferredDoctor" class="form-control" th:value="${settings.preferredDoctor}">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small">Emergency Contact Number</label>
+                                        <input type="text" name="emergencyContact" class="form-control" th:value="${settings.emergencyContact}">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small">Blood Group</label>
+                                        <input type="text" name="bloodGroup" class="form-control" th:value="${settings.bloodGroup}">
+                                    </div>
+                                    <div class="col-md-12">
+                                        <label class="form-label text-muted small">Allergies</label>
+                                        <input type="text" name="allergies" class="form-control" th:value="${settings.allergies}">
+                                    </div>
+                                    <div class="col-md-12">
+                                        <label class="form-label text-muted small">Default Consultation Mode</label>
+                                        <select name="defaultConsultationMode" class="form-select">
+                                            <option value="ONLINE" th:selected="${settings.defaultConsultationMode == 'ONLINE'}">Online</option>
+                                            <option value="OFFLINE" th:selected="${settings.defaultConsultationMode == 'OFFLINE'}">Offline</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <label class="form-label text-muted small">Medical Notes</label>
+                                        <textarea name="medicalNotes" class="form-control" rows="3" th:text="${settings.medicalNotes}"></textarea>
+                                    </div>
+                                    <div class="col-12 mt-4 border-top border-light pt-3">
+                                        <button type="submit" class="btn btn-primary d-inline-flex align-items-center gap-2">
+                                            <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                                            <span th:text="#{settings.save}">Save</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Doctor Properties -->
+                        <div class="card border-0 shadow-sm p-4" th:if="${session.loggedInUser.role == 'ROLE_DOCTOR' || session.loggedInUser.role == 'DOCTOR'}">
+                            <h4 class="fw-bold mb-1 text-dark">Professional Settings</h4>
+                            <p class="text-muted small mb-4">Set pricing rates, available days/slots, and clinic details.</p>
+                            <form id="doctorSettingsForm" class="settings-form">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small">Specialization</label>
+                                        <input type="text" name="specialization" class="form-control" th:value="${settings.specialization}">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small">Consultation Fee (₹)</label>
+                                        <input type="number" step="0.01" name="consultationFee" class="form-control" th:value="${settings.consultationFee}">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small">Available Days</label>
+                                        <input type="text" name="availableDays" class="form-control" th:value="${settings.availableDays}">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small">Available Time Slots</label>
+                                        <input type="text" name="availableTimeSlots" class="form-control" th:value="${settings.availableTimeSlots}">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small">Consultation Duration (mins)</label>
+                                        <input type="number" name="consultationDuration" class="form-control" th:value="${settings.consultationDuration}">
+                                    </div>
+                                    <div class="col-md-6 mt-4">
+                                        <div class="form-check form-switch mt-2">
+                                            <input class="form-check-input" type="checkbox" name="onlineConsultation" th:checked="${settings.onlineConsultation}">
+                                            <label class="form-check-label text-dark small fw-semibold">Support Online Consultation</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 border-top pt-3 mt-3">
+                                        <h6 class="fw-bold mb-3 text-dark">Clinic Information</h6>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small">Clinic Name</label>
+                                        <input type="text" name="clinicName" class="form-control" th:value="${settings.clinicName}">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small">Contact Number</label>
+                                        <input type="text" name="clinicContactNumber" class="form-control" th:value="${settings.clinicContactNumber}">
+                                    </div>
+                                    <div class="col-md-12">
+                                        <label class="form-label text-muted small">Clinic Address</label>
+                                        <input type="text" name="clinicAddress" class="form-control" th:value="${settings.clinicAddress}">
+                                    </div>
+                                    <div class="col-12 mt-4 border-top border-light pt-3">
+                                        <button type="submit" class="btn btn-primary d-inline-flex align-items-center gap-2">
+                                            <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                                            <span th:text="#{settings.save}">Save</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Admin Properties -->
+                        <div class="card border-0 shadow-sm p-4" th:if="${session.loggedInUser.role != 'ROLE_PATIENT' && session.loggedInUser.role != 'PATIENT' && session.loggedInUser.role != 'ROLE_DOCTOR' && session.loggedInUser.role != 'DOCTOR'}">
+                            <h4 class="fw-bold mb-1 text-dark">Hospital Configurations</h4>
+                            <p class="text-muted small mb-4">Adjust hospital name, security rules, and user onboarding policies.</p>
+                            <form id="adminSettingsForm" class="settings-form">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small">Hospital Name</label>
+                                        <input type="text" name="hospitalName" class="form-control" th:value="${settings.hospitalName}">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small">Logo URL</label>
+                                        <input type="text" name="hospitalLogo" class="form-control" th:value="${settings.hospitalLogo}">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small">Default Currency</label>
+                                        <input type="text" name="defaultCurrency" class="form-control" th:value="${settings.defaultCurrency}">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small">Registration Onboarding Approval</label>
+                                        <select name="registrationApprovalSettings" class="form-select">
+                                            <option value="AUTO" th:selected="${settings.registrationApprovalSettings == 'AUTO'}">Automatic Approval</option>
+                                            <option value="MANUAL" th:selected="${settings.registrationApprovalSettings == 'MANUAL'}">Requires Manual Review</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-12 border-top pt-3 mt-3">
+                                        <h6 class="fw-bold mb-3 text-dark">Security Controls</h6>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small">Session Timeout (mins)</label>
+                                        <input type="number" name="sessionTimeout" class="form-control" th:value="${settings.sessionTimeout}">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small">Max Failed Logins</label>
+                                        <input type="number" name="maxLoginAttempts" class="form-control" th:value="${settings.maxLoginAttempts}">
+                                    </div>
+                                    <div class="col-md-6 mt-3">
+                                        <div class="form-check form-switch mt-2">
+                                            <input class="form-check-input" type="checkbox" name="twoFactorAuth" th:checked="${settings.twoFactorAuth}">
+                                            <label class="form-check-label text-dark small fw-semibold">Enforce Two-Factor Authentication</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 mt-4 border-top border-light pt-3">
+                                        <button type="submit" class="btn btn-primary d-inline-flex align-items-center gap-2">
+                                            <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                                            <span th:text="#{settings.save}">Save</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- settings custom script -->
+    <script th:inline="javascript">
+        let hasUnsavedChanges = false;
+        
+        // Track changes on input and select elements
+        document.querySelectorAll('.settings-form input, .settings-form select, .settings-form textarea').forEach(elem => {
+            elem.addEventListener('change', () => {
+                hasUnsavedChanges = true;
+            });
+            elem.addEventListener('input', () => {
+                hasUnsavedChanges = true;
+            });
+        });
+
+        // Warn before leaving if changes are unsaved
+        window.addEventListener('beforeunload', (e) => {
+            if (hasUnsavedChanges) {
+                e.preventDefault();
+                e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+            }
+        });
+
+        // Toast controller helper
+        function showSettingsToast(message, isSuccess = true) {
+            const toastEl = document.getElementById('settingsToast');
+            const messageEl = document.getElementById('toastMessage');
+            messageEl.innerText = message;
+            
+            toastEl.classList.remove('bg-success', 'bg-danger');
+            toastEl.classList.add(isSuccess ? 'bg-success' : 'bg-danger');
+            
+            const toast = new bootstrap.Toast(toastEl, { delay: 4000 });
+            toast.show();
+        }
+
+        // Submitting forms via AJAX
+        function setupAjaxForm(formId, endpointUrl) {
+            const form = document.getElementById(formId);
+            if (!form) return;
+
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                hasUnsavedChanges = false; // Reset on submit
+
+                const button = form.querySelector('button[type="submit"]');
+                const spinner = button.querySelector('.spinner-border');
+                if (button) button.disabled = true;
+                if (spinner) spinner.classList.remove('d-none');
+
+                // Convert FormData to URLSearchParams to force application/x-www-form-urlencoded
+                const formData = new URLSearchParams(new FormData(form));
+                fetch(endpointUrl, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (button) button.disabled = false;
+                    if (spinner) spinner.classList.add('d-none');
+
+                    if (data.success) {
+                        showSettingsToast(data.message || 'Changes saved successfully!', true);
+                        
+                        // If language changed, reload to apply locale bundle globally
+                        if (formId === 'languageForm') {
+                            setTimeout(() => { window.location.reload(); }, 1000);
+                        }
+                        // If theme/accessibility changed, apply changes instantly
+                        if (formId === 'appearanceForm' || formId === 'accessibilityForm') {
+                            applyPreferencesInstantly();
+                        }
+                    } else {
+                        showSettingsToast(data.message || 'Failed to update preferences.', false);
+                    }
+                })
+                .catch(err => {
+                    if (button) button.disabled = false;
+                    if (spinner) spinner.classList.add('d-none');
+                    showSettingsToast('Network error, please try again.', false);
+                });
+            });
+        }
+
+        function applyPreferencesInstantly() {
+            const theme = document.getElementById('themeSelect')?.value || 'SYSTEM';
+            const font = document.getElementById('fontSelect')?.value || 'MEDIUM';
+            const contrast = document.getElementById('contrastCheck')?.checked;
+            const motion = document.getElementById('motionCheck')?.checked;
+
+            // Apply Theme
+            if (theme === 'DARK') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                document.body.classList.add('theme-dark');
+            } else if (theme === 'LIGHT') {
+                document.documentElement.setAttribute('data-theme', 'light');
+                document.body.classList.remove('theme-dark');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                // Check system
+                if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    document.body.classList.add('theme-dark');
+                } else {
+                    document.body.classList.remove('theme-dark');
+                }
+            }
+
+            // Apply Font
+            document.documentElement.setAttribute('data-font-size', font.toLowerCase());
+
+            // Apply Contrast
+            if (contrast) {
+                document.documentElement.setAttribute('data-contrast', 'high');
+            } else {
+                document.documentElement.removeAttribute('data-contrast');
+            }
+
+            // Apply Motion
+            if (motion) {
+                document.documentElement.setAttribute('data-motion', 'reduce');
+            } else {
+                document.documentElement.removeAttribute('data-motion');
+            }
+        }
+
+        // Setup forms
+        document.addEventListener('DOMContentLoaded', () => {
+            setupAjaxForm('profileForm', '/settings/profile');
+            setupAjaxForm('securityForm', '/settings/security');
+            setupAjaxForm('appearanceForm', '/settings/appearance');
+            setupAjaxForm('languageForm', '/settings/language');
+            setupAjaxForm('notificationsForm', '/settings/notifications');
+            setupAjaxForm('accessibilityForm', '/settings/accessibility');
+            setupAjaxForm('privacyForm', '/settings/privacy');
+            setupAjaxForm('patientSettingsForm', '/settings/role');
+            setupAjaxForm('doctorSettingsForm', '/settings/role');
+            setupAjaxForm('adminSettingsForm', '/settings/role');
+
+            // Button click listeners
+            document.getElementById('logoutAllBtn')?.addEventListener('click', () => {
+                fetch('/settings/logout-all', { method: 'POST' })
+                    .then(res => res.json())
+                    .then(data => showSettingsToast(data.message));
+            });
+
+            document.getElementById('downloadDataBtn')?.addEventListener('click', () => {
+                fetch('/settings/download-data', { method: 'POST' })
+                    .then(res => res.json())
+                    .then(data => showSettingsToast(data.message));
+            });
+
+            document.getElementById('deleteAccountBtn')?.addEventListener('click', () => {
+                if (confirm('Are you sure you want to request account deletion? This action is permanent.')) {
+                    fetch('/settings/delete-account', { method: 'POST' })
+                        .then(res => res.json())
+                        .then(data => showSettingsToast(data.message));
+                }
+            });
+        });
+    </script>
+</body>
+</html>

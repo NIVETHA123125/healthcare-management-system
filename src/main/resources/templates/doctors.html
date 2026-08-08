@@ -2,29 +2,61 @@
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(content=~{::#doctors-content}, headerTitle='Doctor Directory')}">
 <body>
     <div id="doctors-content">
+        <!-- Success/Error Messages -->
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert" style="border-radius: 8px;">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            <span th:text="${successMessage}">Success!</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert" style="border-radius: 8px;">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <span th:text="${errorMessage}">Error!</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
         <!-- Search and Action Bar Card -->
-        <div class="card border-0 shadow-sm mb-4">
-            <div class="row g-3 align-items-center">
-                <div class="col-md-8">
-                    <form th:action="@{/doctors}" method="GET" class="d-flex gap-2">
+        <div class="card border-0 shadow-sm mb-4 p-3">
+            <form th:action="@{/doctors}" method="GET">
+                <div class="row g-3 align-items-center">
+                    <div class="col-md-3">
                         <div class="input-group">
                             <span class="input-group-text bg-white border-end-0 text-muted">
                                 <i class="bi bi-search"></i>
                             </span>
-                            <input type="text" name="keyword" th:value="${keyword}" placeholder="Search doctors by name or specialization..." class="form-control border-start-0 ps-0" style="border-radius: 0 8px 8px 0; outline: none; box-shadow: none;">
+                            <input type="text" name="search" th:value="${search}" placeholder="Search name, email, phone, ID..." class="form-control border-start-0 ps-0" style="border-radius: 0 8px 8px 0; outline: none; box-shadow: none;">
                         </div>
-                        <button type="submit" class="btn btn-outline-primary px-4" style="border-radius: 8px;">Search</button>
-                        <a th:if="${keyword != null && !keyword.isEmpty()}" th:href="@{/doctors}" class="btn btn-outline-danger px-3 d-flex align-items-center justify-content-center" style="border-radius: 8px;" title="Clear Search">
-                            <i class="bi bi-x-lg"></i>
+                    </div>
+                    <div class="col-md-2">
+                        <select name="spec" class="form-select" style="border-radius: 8px;">
+                            <option value="">All Specializations</option>
+                            <option th:each="s : ${specializations}" th:value="${s}" th:text="${s}" th:selected="${spec == s}">Specialization</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select name="status" class="form-select" style="border-radius: 8px;">
+                            <option value="">All Statuses</option>
+                            <option value="Available" th:selected="${status == 'Available'}">Available</option>
+                            <option value="Unavailable" th:selected="${status == 'Unavailable'}">Unavailable</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select name="expRange" class="form-select" style="border-radius: 8px;">
+                            <option value="">All Experiences</option>
+                            <option value="0-4" th:selected="${expRange == '0-4'}">Under 5 Years</option>
+                            <option value="5-10" th:selected="${expRange == '5-10'}">5 to 10 Years</option>
+                            <option value="11-20" th:selected="${expRange == '11-20'}">11 to 20 Years</option>
+                            <option value="21-100" th:selected="${expRange == '21-100'}">20+ Years</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 d-flex gap-2 justify-content-md-end">
+                        <button type="submit" class="btn btn-primary px-3" style="border-radius: 8px;">Filter</button>
+                        <a th:href="@{/doctors}" class="btn btn-outline-secondary px-3" style="border-radius: 8px;">Clear</a>
+                        <a th:href="@{/doctors/add}" class="btn btn-success d-inline-flex align-items-center gap-1 px-3" style="border-radius: 8px;">
+                            <i class="bi bi-person-plus-fill"></i> New
                         </a>
-                    </form>
+                    </div>
                 </div>
-                <div class="col-md-4 text-md-end">
-                    <a th:href="@{/doctors/add}" class="btn btn-primary d-inline-flex align-items-center gap-2 px-4" style="border-radius: 8px;">
-                        <i class="bi bi-person-plus-fill"></i> Register Doctor
-                    </a>
-                </div>
-            </div>
+            </form>
         </div>
 
         <!-- Table Card -->
@@ -41,9 +73,10 @@
                             <th style="width: 80px;">ID</th>
                             <th>Practitioner Name</th>
                             <th>Specialization</th>
-                            <th>Email Address</th>
-                            <th>Phone Number</th>
-                            <th>Availability Hours</th>
+                            <th>Contact Details</th>
+                            <th>Experience</th>
+                            <th>Consultation Fee</th>
+                            <th>Availability Info</th>
                             <th class="text-end" style="width: 180px;">Actions</th>
                         </tr>
                     </thead>
@@ -53,15 +86,30 @@
                             <td>
                                 <div class="d-flex align-items-center gap-2">
                                     <div class="user-avatar-circle" style="width: 32px; height: 32px; font-size: 12px;" th:text="${#strings.substring(doctor.fullName, 0, 1)}">D</div>
-                                    <span class="fw-bold" th:text="${'Dr. ' + doctor.fullName}">Dr. Gregory House</span>
+                                    <div>
+                                        <div class="fw-bold" th:text="${'Dr. ' + doctor.fullName}">Dr. Gregory House</div>
+                                        <div class="small text-muted font-mono" style="font-size: 11px;">
+                                            <span th:text="${doctor.qualification != null ? doctor.qualification : 'MD'}">MD</span> &middot; 
+                                            <span th:text="${doctor.gender != null ? doctor.gender : 'Male'}">Male</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </td>
                             <td>
                                 <span class="badge bg-info-subtle text-info border border-info-subtle px-2 py-1 rounded-pill" th:text="${doctor.specialization}">Cardiology</span>
                             </td>
-                            <td th:text="${doctor.email}">g.house@caregrid.com</td>
-                            <td class="font-mono text-muted" th:text="${doctor.phone}">+1 (555) 100-2000</td>
-                            <td class="text-muted small" th:text="${doctor.availabilityHours}">09:00 AM - 05:00 PM</td>
+                            <td>
+                                <div class="small fw-semibold text-dark" th:text="${doctor.email}">g.house@caregrid.com</div>
+                                <div class="small font-mono text-muted" th:text="${doctor.phone}">+1 (555) 100-2000</div>
+                            </td>
+                            <td class="font-mono text-muted small" th:text="${doctor.experience != null ? doctor.experience + ' Yrs' : 'N/A'}">5 Yrs</td>
+                            <td class="fw-bold text-dark font-mono small" th:text="${doctor.consultationFee != null ? '₹' + #numbers.formatDecimal(doctor.consultationFee, 1, 2) : 'Free'}">₹100.00</td>
+                            <td>
+                                <div class="small text-muted" th:text="${doctor.availabilityHours}">09:00 AM - 05:00 PM</div>
+                                <span class="badge px-2 py-1 rounded" 
+                                      th:classappend="${doctor.availabilityStatus == 'Available' ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-danger-subtle text-danger border border-danger-subtle'}" 
+                                      th:text="${doctor.availabilityStatus != null ? doctor.availabilityStatus : 'Available'}">Available</span>
+                            </td>
                             <td class="text-end">
                                 <div class="d-inline-flex gap-2">
                                     <a th:href="@{/doctors/edit/{id}(id=${doctor.id})}" class="btn btn-sm btn-outline-primary px-3 py-1" style="font-size: 12px; border-radius: 6px;">
@@ -77,9 +125,9 @@
                             </td>
                         </tr>
                         <tr th:if="${#lists.isEmpty(doctors)}">
-                            <td colspan="7" class="text-center py-5">
+                            <td colspan="8" class="text-center py-5">
                                 <i class="bi bi-heart-pulse fs-1 text-muted mb-3 d-block"></i>
-                                <p class="text-muted mb-0">No doctors found. Click "Register Doctor" to add one.</p>
+                                <p class="text-muted mb-0">No records found.</p>
                             </td>
                         </tr>
                     </tbody>

@@ -88,11 +88,21 @@
                         <div class="d-flex flex-column gap-3">
                             <div>
                                 <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <span class="small text-muted fw-semibold">Scheduled Visits</span>
-                                    <span class="badge bg-warning text-dark px-2 py-1" th:text="${scheduledCount}">0</span>
+                                    <span class="small text-muted fw-semibold">Pending Approvals</span>
+                                    <span class="badge bg-warning text-dark px-2 py-1" th:text="${pendingCount}">0</span>
                                 </div>
                                 <div class="progress" style="height: 6px;">
-                                    <div class="progress-bar bg-warning" role="progressbar" style="width: 60%"></div>
+                                    <div class="progress-bar bg-warning" role="progressbar" style="width: 40%"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="small text-muted fw-semibold">Approved Bookings</span>
+                                    <span class="badge bg-primary text-white px-2 py-1" th:text="${approvedCount}">0</span>
+                                </div>
+                                <div class="progress" style="height: 6px;">
+                                    <div class="progress-bar bg-primary" role="progressbar" style="width: 50%"></div>
                                 </div>
                             </div>
                             
@@ -154,8 +164,8 @@
                                         <td class="text-muted" th:text="${'Dr. ' + appt.doctor.lastName}">Dr. House</td>
                                         <td>
                                             <span class="status-pill" 
-                                                  th:classappend="${appt.status == 'SCHEDULED' ? 'status-pill-scheduled' : (appt.status == 'COMPLETED' ? 'status-pill-completed' : 'status-pill-cancelled')}" 
-                                                  th:text="${appt.status}">SCHEDULED</span>
+                                                  th:classappend="${appt.status == 'PENDING' ? 'status-pill-pending' : (appt.status == 'APPROVED' ? 'status-pill-approved' : (appt.status == 'COMPLETED' ? 'status-pill-completed' : 'status-pill-cancelled'))}" 
+                                                  th:text="${appt.status}">PENDING</span>
                                         </td>
                                     </tr>
                                 </tbody>

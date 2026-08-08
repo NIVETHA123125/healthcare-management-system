@@ -5,7 +5,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import org.springframework.scheduling.annotation.EnableScheduling;
+
 @Configuration
+@EnableScheduling
 public class WebConfig implements WebMvcConfigurer {
 
     @Autowired
@@ -28,7 +31,11 @@ public class WebConfig implements WebMvcConfigurer {
                     "/css/**", 
                     "/js/**", 
                     "/favicon.ico", 
-                    "/error"
+                    "/favicon.png", 
+                    "/error",
+                    "/register-doctor",
+                    "/register-doctor/save",
+                    "/api/otp/**"
                 );
     }
 }

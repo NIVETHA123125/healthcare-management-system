@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(content=~{::#payment-result-content}, headerTitle='Payment Receipt & Status')}">
+<body>
+    <div id="payment-result-content">
+        <div class="card border-0 shadow-sm max-width-600 mx-auto p-4 text-center" style="max-width: 600px; border-radius: 12px !important;">
+            <!-- Success Outcome -->
+            <div th:if="${success}">
+                <div class="mb-4">
+                    <div class="d-inline-flex align-items-center justify-content-center bg-success-subtle text-success rounded-circle" style="width: 72px; height: 72px; background-color: #d4edda; color: #155724;">
+                        <i class="bi bi-check-circle-fill" style="font-size: 36px;"></i>
+                    </div>
+                </div>
+                <h3 class="fw-bold text-success mb-2">Payment Successful!</h3>
+                <p class="text-muted" th:text="${message}">Your payment has been completed successfully.</p>
+                
+                <div class="bg-light p-4 rounded-3 text-start my-4" style="border: 1px dashed #dee2e6; border-radius: 8px;">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted small">Transaction ID:</span>
+                        <span class="fw-bold text-dark font-mono" th:text="${transactionId}">TXN-12345678</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted small">Date &amp; Time:</span>
+                        <span class="fw-semibold text-dark" th:text="${#temporals.format(paymentDate, 'yyyy-MM-dd hh:mm a')}">2026-07-07 08:30 PM</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted small">Payment Method:</span>
+                        <span class="badge bg-white text-dark border px-2 py-1" th:text="${payment.paymentMethod}">CARD</span>
+                    </div>
+                    <div class="d-flex justify-content-between border-top border-light pt-2 mt-2">
+                        <span class="fw-bold text-dark">Amount Paid:</span>
+                        <span class="fw-bold text-primary" th:text="${'₹' + #numbers.formatDecimal(amount, 1, 2)}">₹150.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Failure Outcome -->
+            <div th:if="${!success}">
+                <div class="mb-4">
+                    <div class="d-inline-flex align-items-center justify-content-center bg-danger-subtle text-danger rounded-circle" style="width: 72px; height: 72px; background-color: #f8d7da; color: #721c24;">
+                        <i class="bi bi-x-circle-fill" style="font-size: 36px;"></i>
+                    </div>
+                </div>
+                <h3 class="fw-bold text-danger mb-2" th:text="${errorMessage == 'Payment Cancelled by User.' ? 'Payment Cancelled' : 'Payment Failed'}">Payment Failed</h3>
+                <p class="text-muted" th:text="${errorMessage}">Payment Failed. Please try again.</p>
+
+                <div class="bg-light p-3 rounded-3 text-start my-4" style="border: 1px solid #dee2e6; border-radius: 8px;">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted small">Status:</span>
+                        <span class="status-pill status-pill-failed" th:if="${errorMessage != 'Payment Cancelled by User.'}">FAILED</span>
+                        <span class="status-pill status-pill-cancelled-dark" th:if="${errorMessage == 'Payment Cancelled by User.'}">CANCELLED</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted small">Outstanding Amount:</span>
+                        <span class="fw-bold text-dark" th:text="${'₹' + #numbers.formatDecimal(amount, 1, 2)}">₹150.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex gap-3 justify-content-center pt-3 border-top border-light mt-4">
+                <a th:href="@{/patient/payments}" class="btn btn-primary px-4 py-2" style="border-radius: 8px;">Go to My Payments</a>
+                <a th:if="${!success && errorMessage != 'Payment Cancelled by User.'}" th:href="@{/patient/payments/pay/{id}(id=${payment.id})}" class="btn btn-outline-primary px-4 py-2" style="border-radius: 8px;">Try Again</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

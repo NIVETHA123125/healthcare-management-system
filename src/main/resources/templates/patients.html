@@ -2,29 +2,58 @@
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(content=~{::#patients-content}, headerTitle='Patient Registry')}">
 <body>
     <div id="patients-content">
+        <!-- Dynamic Alert Banners -->
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert" style="border-radius: 8px;">
+            <i class="bi bi-check-circle-fill me-2"></i> <span th:text="${successMessage}">Success!</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" role="alert" style="border-radius: 8px;">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> <span th:text="${errorMessage}">Error!</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
         <!-- Search and Action Bar Card -->
-        <div class="card border-0 shadow-sm mb-4">
-            <div class="row g-3 align-items-center">
-                <div class="col-md-8">
-                    <form th:action="@{/patients}" method="GET" class="d-flex gap-2">
+        <div class="card border-0 shadow-sm mb-4 p-3">
+            <form th:action="@{/patients}" method="GET">
+                <div class="row g-3 align-items-center">
+                    <div class="col-md-3">
                         <div class="input-group">
                             <span class="input-group-text bg-white border-end-0 text-muted">
                                 <i class="bi bi-search"></i>
                             </span>
-                            <input type="text" name="keyword" th:value="${keyword}" placeholder="Search patients by name or email..." class="form-control border-start-0 ps-0" style="border-radius: 0 8px 8px 0; outline: none; box-shadow: none;">
+                            <input type="text" name="search" th:value="${search}" placeholder="Search name, email, phone, ID..." class="form-control border-start-0 ps-0" style="border-radius: 0 8px 8px 0; outline: none; box-shadow: none;">
                         </div>
-                        <button type="submit" class="btn btn-outline-primary px-4" style="border-radius: 8px;">Search</button>
-                        <a th:if="${keyword != null && !keyword.isEmpty()}" th:href="@{/patients}" class="btn btn-outline-danger px-3 d-flex align-items-center justify-content-center" style="border-radius: 8px;" title="Clear Search">
-                            <i class="bi bi-x-lg"></i>
+                    </div>
+                    <div class="col-md-2">
+                        <select name="gender" class="form-select" style="border-radius: 8px;">
+                            <option value="">All Genders</option>
+                            <option value="Male" th:selected="${gender == 'Male'}">Male</option>
+                            <option value="Female" th:selected="${gender == 'Female'}">Female</option>
+                            <option value="Other" th:selected="${gender == 'Other'}">Other</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="date" name="regDate" th:value="${regDate}" class="form-control" style="border-radius: 8px;">
+                    </div>
+                    <div class="col-md-2">
+                        <select name="ageGroup" class="form-select" style="border-radius: 8px;">
+                            <option value="">All Ages</option>
+                            <option value="0-17" th:selected="${ageGroup == '0-17'}">0-17 Years</option>
+                            <option value="18-35" th:selected="${ageGroup == '18-35'}">18-35 Years</option>
+                            <option value="36-50" th:selected="${ageGroup == '36-50'}">36-50 Years</option>
+                            <option value="51-65" th:selected="${ageGroup == '51-65'}">51-65 Years</option>
+                            <option value="66-150" th:selected="${ageGroup == '66-150'}">66+ Years</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 d-flex gap-2 justify-content-md-end">
+                        <button type="submit" class="btn btn-primary px-3" style="border-radius: 8px;">Filter</button>
+                        <a th:href="@{/patients}" class="btn btn-outline-secondary px-3" style="border-radius: 8px;">Clear</a>
+                        <a th:href="@{/patients/add}" class="btn btn-success d-inline-flex align-items-center gap-1 px-3" style="border-radius: 8px;">
+                            <i class="bi bi-person-plus-fill"></i> New
                         </a>
-                    </form>
+                    </div>
                 </div>
-                <div class="col-md-4 text-md-end">
-                    <a th:href="@{/patients/add}" class="btn btn-primary d-inline-flex align-items-center gap-2 px-4" style="border-radius: 8px;">
-                        <i class="bi bi-person-plus-fill"></i> Register Patient
-                    </a>
-                </div>
-            </div>
+            </form>
         </div>
 
         <!-- Table Card -->
@@ -79,7 +108,7 @@
                         <tr th:if="${#lists.isEmpty(patients)}">
                             <td colspan="7" class="text-center py-5">
                                 <i class="bi bi-people fs-1 text-muted mb-3 d-block"></i>
-                                <p class="text-muted mb-0">No patients found. Click "Register Patient" to add one.</p>
+                                <p class="text-muted mb-0">No records found.</p>
                             </td>
                         </tr>
                     </tbody>

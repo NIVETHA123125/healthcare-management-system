@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Doctor Account - CareGrid Healthcare</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" th:href="@{/favicon.png}">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Fonts -->
+    <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Main Style -->
+    <link rel="stylesheet" th:href="@{/css/style.css(v=3)}">
+</head>
+<body class="auth-container">
+    <div class="auth-card auth-card-wide" style="max-width: 900px;">
+        <div class="auth-header text-center">
+            <a th:href="@{/}" class="auth-brand">
+                <i class="bi-heart-pulse-fill"></i> CareGrid
+            </a>
+            <p class="auth-subtitle">Create Doctor Account</p>
+        </div>
+
+        <form th:action="@{/register-doctor/save}" method="POST" class="needs-validation" id="registerForm" novalidate>
+            <!-- Error Alert -->
+            <div th:if="${error}" class="alert alert-danger border-0 shadow-sm p-3 mb-4 text-start d-flex align-items-center gap-2" role="alert" style="border-radius: 8px;">
+                <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+                <span th:text="${error}">An error occurred</span>
+            </div>
+
+            <!-- Full Name and Gender -->
+            <div class="row g-3">
+                <div class="col-md-6 mb-1">
+                    <label for="fullName" class="form-label-custom">Full Name</label>
+                    <div class="input-group-custom mb-1">
+                        <input type="text" id="fullName" name="fullName" th:value="${fullName}" class="form-control-custom" placeholder="e.g. Dr. Shankar R" required autocomplete="name">
+                        <i class="bi bi-person input-icon"></i>
+                    </div>
+                    <div class="text-danger small mb-2" id="fullNameError" th:if="${fullNameError}" th:text="${fullNameError}"></div>
+                </div>
+                <div class="col-md-6 mb-1">
+                    <label for="gender" class="form-label-custom">Gender</label>
+                    <div class="input-group-custom mb-1">
+                        <select id="gender" name="gender" class="form-control-custom form-select-custom" required>
+                            <option value="" disabled th:selected="${gender == null}">Select Gender</option>
+                            <option value="Male" th:selected="${gender == 'Male'}">Male</option>
+                            <option value="Female" th:selected="${gender == 'Female'}">Female</option>
+                            <option value="Other" th:selected="${gender == 'Other'}">Other</option>
+                        </select>
+                        <i class="bi bi-gender-ambiguous input-icon"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Date of Birth and Specialization -->
+            <div class="row g-3">
+                <div class="col-md-6 mb-1">
+                    <label for="dob" class="form-label-custom">Date of Birth</label>
+                    <div class="input-group-custom mb-1">
+                        <input type="date" id="dob" name="dob" th:value="${dob}" class="form-control-custom" required>
+                        <i class="bi bi-calendar input-icon"></i>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-1">
+                    <label for="specialization" class="form-label-custom">Specialization</label>
+                    <div class="input-group-custom mb-1">
+                        <input type="text" id="specialization" name="specialization" th:value="${specialization}" class="form-control-custom" placeholder="e.g. Cardiology" required>
+                        <i class="bi bi-patch-check input-icon"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Email and Phone -->
+            <div class="row g-3">
+                <div class="col-md-6 mb-1">
+                    <label for="email" class="form-label-custom">Email Address</label>
+                    <div class="input-group-custom mb-1">
+                        <input type="email" id="email" name="email" th:value="${email}" class="form-control-custom" placeholder="doctor@caregrid.com" required autocomplete="email">
+                        <i class="bi bi-envelope input-icon"></i>
+                    </div>
+                    <div class="text-danger small mb-2" id="emailError" th:if="${emailError}" th:text="${emailError}"></div>
+                </div>
+                <div class="col-md-6 mb-1">
+                    <label for="phone" class="form-label-custom">Phone Number</label>
+                    <div class="input-group-custom mb-1">
+                        <input type="tel" id="phone" name="phone" th:value="${phone}" class="form-control-custom" placeholder="9876543210" required autocomplete="tel">
+                        <i class="bi bi-telephone input-icon"></i>
+                    </div>
+                    <div class="text-danger small mb-2" id="phoneError" th:if="${phoneError}" th:text="${phoneError}"></div>
+                </div>
+            </div>
+
+            <!-- Qualification and Experience -->
+            <div class="row g-3">
+                <div class="col-md-6 mb-1">
+                    <label for="qualification" class="form-label-custom">Qualification</label>
+                    <div class="input-group-custom mb-1">
+                        <input type="text" id="qualification" name="qualification" th:value="${qualification}" class="form-control-custom" placeholder="e.g. MBBS, MD" required>
+                        <i class="bi bi-mortarboard input-icon"></i>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-1">
+                    <label for="experience" class="form-label-custom">Experience (Years)</label>
+                    <div class="input-group-custom mb-1">
+                        <input type="number" id="experience" name="experience" th:value="${experience}" class="form-control-custom" placeholder="e.g. 8" required min="0">
+                        <i class="bi bi-briefcase input-icon"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Address -->
+            <div class="mb-3">
+                <label for="address" class="form-label-custom">Clinic/Hospital Address</label>
+                <div class="input-group-custom">
+                    <textarea id="address" name="address" class="form-control-custom py-2" rows="2" placeholder="Enter complete practice address..." required th:text="${address}"></textarea>
+                    <i class="bi bi-geo-alt input-icon" style="top: 15px;"></i>
+                </div>
+            </div>
+
+            <!-- Passwords -->
+            <div class="row g-3">
+                <div class="col-md-6 mb-1">
+                    <label for="password" class="form-label-custom">Password</label>
+                    <div class="input-group-custom mb-1">
+                        <input type="password" id="password" name="password" class="form-control-custom" placeholder="Min. 8 characters" required autocomplete="new-password">
+                        <i class="bi bi-lock input-icon"></i>
+                    </div>
+                    <div class="text-danger small mb-2" id="passwordError" th:if="${passwordError}" th:text="${passwordError}"></div>
+                </div>
+                <div class="col-md-6 mb-1">
+                    <label for="confirmPassword" class="form-label-custom">Confirm Password</label>
+                    <div class="input-group-custom mb-1">
+                        <input type="password" id="confirmPassword" name="confirmPassword" class="form-control-custom" placeholder="Re-enter password" required autocomplete="new-password">
+                        <i class="bi bi-lock input-icon"></i>
+                    </div>
+                    <div class="text-danger small mb-2" id="confirmPasswordError" th:if="${confirmPasswordError}" th:text="${confirmPasswordError}"></div>
+                </div>
+            </div>
+
+            <!-- Register Button -->
+            <button type="submit" class="btn-submit mt-4" id="submitBtn">
+                <span>Register Doctor Account</span>
+            </button>
+        </form>
+
+        <!-- Back to Login -->
+        <div class="text-center mt-4 small text-muted">
+            Already have an account? <a th:href="@{/login}" class="fw-semibold text-decoration-none">Sign In</a>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Client-side Validation and Spinners -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('registerForm');
+            if (form) {
+                form.addEventListener('submit', function(event) {
+                    document.querySelectorAll('.text-danger.small').forEach(el => el.textContent = '');
+                    let hasErrors = false;
+
+                    const fullName = document.getElementById('fullName').value.trim();
+                    const email = document.getElementById('email').value.trim();
+                    const phone = document.getElementById('phone').value.trim();
+                    const password = document.getElementById('password').value;
+                    const confirmPassword = document.getElementById('confirmPassword').value;
+
+                    if (!fullName) {
+                        document.getElementById('fullNameError').textContent = 'Name cannot be empty.';
+                        hasErrors = true;
+                    }
+
+                    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                    if (!emailRegex.test(email)) {
+                        document.getElementById('emailError').textContent = 'Please enter a valid email address.';
+                        hasErrors = true;
+                    }
+
+                    const phoneRegex = /^[6-9]\d{9}$/;
+                    if (!phoneRegex.test(phone)) {
+                        document.getElementById('phoneError').textContent = 'Please enter a valid 10-digit phone number.';
+                        hasErrors = true;
+                    }
+
+                    if (password.length < 8) {
+                        document.getElementById('passwordError').textContent = 'Password must have a minimum length of 8 characters.';
+                        hasErrors = true;
+                    }
+
+                    if (password !== confirmPassword) {
+                        document.getElementById('confirmPasswordError').textContent = 'Passwords do not match.';
+                        hasErrors = true;
+                    }
+
+                    if (hasErrors) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

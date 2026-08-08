@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${pageTitle != null ? pageTitle + ' - CareGrid' : 'CareGrid Healthcare'}">CareGrid Healthcare</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" th:href="@{/favicon.png}">
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
@@ -13,8 +15,37 @@
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <!-- Main Style -->
     <link rel="stylesheet" th:href="@{/css/style.css(v=3)}">
+    <!-- Immediate Theme & Accessibility Resolver -->
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        (function() {
+            const settings = {
+                theme: "[[${session.userSettings != null ? session.userSettings.theme : 'SYSTEM'}]]",
+                fontSize: "[[${session.userSettings != null ? session.userSettings.fontSize : 'MEDIUM'}]]",
+                highContrast: [[${session.userSettings != null ? session.userSettings.highContrast : false}]],
+                reduceMotion: [[${session.userSettings != null ? session.userSettings.reduceMotion : false}]]
+            };
+            if (settings) {
+                if (settings.theme === 'DARK' || (settings.theme === 'SYSTEM' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                } else {
+                    document.documentElement.setAttribute('data-theme', 'light');
+                }
+                if (settings.fontSize) {
+                    document.documentElement.setAttribute('data-font-size', settings.fontSize.toLowerCase());
+                }
+                if (settings.highContrast) {
+                    document.documentElement.setAttribute('data-contrast', 'high');
+                }
+                if (settings.reduceMotion) {
+                    document.documentElement.setAttribute('data-motion', 'reduce');
+                }
+            }
+        })();
+        /*]]>*/
+    </script>
 </head>
-<body>
+<body th:classappend="${session.userSettings != null && session.userSettings.theme == 'DARK' ? 'theme-dark' : ''}">
     <div class="dashboard-container">
         <!-- Sidebar Navigation -->
         <aside id="sidebar">
@@ -25,7 +56,7 @@
                 </div>
                 <nav class="nav-menu">
                     <!-- Patient Menu Options -->
-                    <th:block th:if="${session.loggedInUser != null && session.loggedInUser.role == 'ROLE_PATIENT'}">
+                    <th:block th:if="${session.loggedInUser != null && (session.loggedInUser.role == 'ROLE_PATIENT' || session.loggedInUser.role == 'PATIENT')}">
                         <a th:href="@{/patient/dashboard}" class="nav-item-custom" th:classappend="${currentUri != null && currentUri.contains('/patient/dashboard') ? 'active' : ''}">
                             <i class="bi bi-grid-1x2-fill"></i> Dashboard
                         </a>
@@ -36,15 +67,37 @@
                             <i class="bi bi-calendar-event"></i> Bookings
                         </a>
                         <a th:href="@{/patient/medical-records}" class="nav-item-custom" th:classappend="${currentUri != null && currentUri.contains('/patient/medical-records') ? 'active' : ''}">
-                            <i class="bi bi-clipboard2-pulse"></i> Medical Notes
+                            <i class="bi bi-prescription2"></i> Medical Records
                         </a>
-                        <a th:href="@{/patient/payments}" class="nav-item-custom" th:classappend="${currentUri != null && currentUri.contains('/patient/payments') ? 'active' : ''}">
-                            <i class="bi bi-credit-card"></i> Statements
+                        <a th:href="@{/patient/prescriptions}" class="nav-item-custom" th:classappend="${currentUri != null && currentUri.contains('/patient/prescriptions') ? 'active' : ''}">
+                            <i class="bi bi-capsule-fill"></i> My Prescriptions
+                        </a>
+                        <a th:href="@{/patient/doctors}" class="nav-item-custom" th:classappend="${currentUri != null && currentUri.contains('/patient/doctors') ? 'active' : ''}">
+                            <i class="bi bi-heart-pulse-fill"></i> Doctor Directory
+                        </a>
+                        <a th:href="@{/patient/payments}" class="nav-item-custom" th:classappend="${currentUri != null && currentUri.contains('/payments') ? 'active' : ''}">
+                            <i class="bi bi-wallet2"></i> My Payments
                         </a>
                     </th:block>
 
-                    <!-- Staff Menu Options -->
-                    <th:block th:if="${session.loggedInUser != null && session.loggedInUser.role != 'ROLE_PATIENT'}">
+                    <!-- Doctor Menu Options -->
+                    <th:block th:if="${session.loggedInUser != null && (session.loggedInUser.role == 'ROLE_DOCTOR' || session.loggedInUser.role == 'DOCTOR')}">
+                        <a th:href="@{/doctor/dashboard}" class="nav-item-custom" th:classappend="${currentUri != null && currentUri.contains('/doctor/dashboard') ? 'active' : ''}">
+                            <i class="bi bi-grid-1x2-fill"></i> Dashboard
+                        </a>
+                        <a th:href="@{/doctor/appointments}" class="nav-item-custom" th:classappend="${currentUri != null && currentUri.contains('/doctor/appointments') ? 'active' : ''}">
+                            <i class="bi bi-calendar-check-fill"></i> My Appointments
+                        </a>
+                        <a th:href="@{/doctor/patients}" class="nav-item-custom" th:classappend="${currentUri != null && currentUri.contains('/doctor/patients') ? 'active' : ''}">
+                            <i class="bi bi-people-fill"></i> My Patients
+                        </a>
+                        <a th:href="@{/prescriptions}" class="nav-item-custom" th:classappend="${currentUri != null && currentUri.startsWith('/prescriptions') ? 'active' : ''}">
+                            <i class="bi bi-file-earmark-medical-fill"></i> Issued Prescriptions
+                        </a>
+                    </th:block>
+
+                    <!-- Staff/Admin Menu Options -->
+                    <th:block th:if="${session.loggedInUser != null && session.loggedInUser.role != 'ROLE_PATIENT' && session.loggedInUser.role != 'PATIENT' && session.loggedInUser.role != 'ROLE_DOCTOR' && session.loggedInUser.role != 'DOCTOR'}">
                         <a th:href="@{/dashboard}" class="nav-item-custom" th:classappend="${currentUri != null && currentUri.contains('/dashboard') ? 'active' : ''}">
                             <i class="bi bi-grid-1x2-fill"></i> Dashboard
                         </a>
@@ -57,9 +110,13 @@
                         <a th:href="@{/appointments}" class="nav-item-custom" th:classappend="${currentUri != null && currentUri.startsWith('/appointments') && !currentUri.contains('history') ? 'active' : ''}">
                             <i class="bi bi-calendar-check-fill"></i> Appointments
                         </a>
-                        <a th:if="${session.loggedInUser.role == 'ROLE_ADMIN' || session.loggedInUser.role == 'ROLE_RECEPTIONIST'}" th:href="@{/payments}" class="nav-item-custom" th:classappend="${currentUri != null && currentUri.startsWith('/payments') ? 'active' : ''}">
-                            <i class="bi bi-credit-card-fill"></i> Billing Logs
+                        <a th:href="@{/prescriptions}" class="nav-item-custom" th:classappend="${currentUri != null && currentUri.startsWith('/prescriptions') ? 'active' : ''}">
+                            <i class="bi bi-file-earmark-medical-fill"></i> Prescriptions
                         </a>
+                        <a th:href="@{/payments}" class="nav-item-custom" th:classappend="${currentUri != null && currentUri.startsWith('/payments') ? 'active' : ''}">
+                            <i class="bi bi-wallet2"></i> Billing &amp; Invoices
+                        </a>
+
                         <a th:href="@{/appointments/history}" class="nav-item-custom" th:classappend="${currentUri != null && currentUri.contains('/appointments/history') ? 'active' : ''}">
                             <i class="bi bi-clock-history"></i> History
                         </a>
@@ -99,26 +156,24 @@
                     
                     <!-- Notification Bell Dropdown -->
                     <div class="dropdown notifications-widget">
-                        <a class="position-relative text-decoration-none" href="#" role="button" id="notificationsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="position-relative text-decoration-none" href="#" role="button" id="notificationsDropdown" data-bs-toggle="dropdown" aria-expanded="false" onclick="fetchNotificationsDropdown()">
                             <i class="bi bi-bell notification-bell"></i>
-                            <span class="notification-badge-dot"></span>
+                            <span id="notificationBadge" class="badge bg-danger position-absolute top-0 start-100 translate-middle rounded-pill" style="font-size: 9px; display: none; padding: 3px 6px;">0</span>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border mt-2 p-0 rounded overflow-hidden" aria-labelledby="notificationsDropdown" style="width: 280px; font-size: 14px;">
-                            <li class="bg-primary text-white p-3 fw-bold">Notifications</li>
-                            <li>
-                                <a class="dropdown-item p-3 border-bottom text-wrap" href="#">
-                                    <div class="fw-semibold">New appointment registered</div>
-                                    <small class="text-muted">A patient just registered a consultation slot.</small>
-                                </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border mt-2 p-0 rounded overflow-hidden" id="notificationDropdownMenu" aria-labelledby="notificationsDropdown" style="width: 320px; font-size: 13px; max-height: 450px; overflow-y: auto;">
+                            <li class="bg-primary text-white p-3 fw-bold d-flex justify-content-between align-items-center">
+                                <span>Notifications</span>
+                                <span class="badge bg-white text-primary rounded-pill small" id="notificationHeaderCount" style="font-size: 11px;">0 New</span>
                             </li>
-                            <li>
-                                <a class="dropdown-item p-3 border-bottom text-wrap" href="#">
-                                    <div class="fw-semibold">Invoice paid successfully</div>
-                                    <small class="text-muted">Invoice #1043 cleared online.</small>
-                                </a>
+                            <li class="p-2 border-bottom d-flex justify-content-between align-items-center bg-light" id="notificationDropdownActions" style="display: none !important;">
+                                <a href="#" onclick="markAllNotificationsReadDropdown(event)" class="text-decoration-none text-primary small fw-semibold" style="font-size: 12px;">Mark all read</a>
+                                <a th:href="@{/notifications}" class="text-decoration-none text-primary small fw-semibold" style="font-size: 12px;">View All</a>
                             </li>
-                            <li class="p-2 text-center bg-light">
-                                <small class="text-muted">End of new notifications</small>
+                            <div id="notificationDropdownItems">
+                                <li class="p-4 text-center text-muted">Loading notifications...</li>
+                            </div>
+                            <li class="p-2 text-center bg-light border-top">
+                                <a th:href="@{/notifications}" class="text-decoration-none text-muted small fw-semibold d-block">View Notification History</a>
                             </li>
                         </ul>
                     </div>
@@ -135,12 +190,17 @@
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end shadow-sm border mt-2 p-2 rounded" aria-labelledby="userMenuButton">
                             <li>
-                                <a class="dropdown-item rounded py-2" th:if="${session.loggedInUser.role == 'ROLE_PATIENT'}" th:href="@{/patient/profile}">
+                                <a class="dropdown-item rounded py-2" th:if="${session.loggedInUser.role == 'ROLE_PATIENT' || session.loggedInUser.role == 'PATIENT'}" th:href="@{/patient/profile}">
                                     <i class="bi bi-person me-2"></i> My Profile
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item rounded py-2" th:if="${session.loggedInUser.role != 'ROLE_PATIENT'}" th:href="@{/dashboard}">
+                                <a class="dropdown-item rounded py-2" th:if="${session.loggedInUser.role == 'ROLE_DOCTOR' || session.loggedInUser.role == 'DOCTOR'}" th:href="@{/doctor/dashboard}">
+                                    <i class="bi bi-speedometer2 me-2"></i> Doctor Dashboard
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item rounded py-2" th:if="${session.loggedInUser.role != 'ROLE_PATIENT' && session.loggedInUser.role != 'PATIENT' && session.loggedInUser.role != 'ROLE_DOCTOR' && session.loggedInUser.role != 'DOCTOR'}" th:href="@{/dashboard}">
                                     <i class="bi bi-speedometer2 me-2"></i> Admin Panel
                                 </a>
                             </li>
@@ -181,6 +241,126 @@
                     }
                 });
             }
+        });
+    </script>
+
+    <!-- Dynamic Notification Script -->
+    <script>
+        function updateNotificationCount() {
+            fetch('/api/notifications/unread/count')
+                .then(response => {
+                    if (response.status === 401) return null;
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data) return;
+                    const count = data.count;
+                    const badge = document.getElementById('notificationBadge');
+                    const headerCount = document.getElementById('notificationHeaderCount');
+                    const actionsRow = document.getElementById('notificationDropdownActions');
+                    
+                    if (badge) {
+                        if (count > 0) {
+                            badge.innerText = count;
+                            badge.style.display = 'inline-block';
+                        } else {
+                            badge.style.display = 'none';
+                        }
+                    }
+                    if (headerCount) {
+                        headerCount.innerText = count + ' New';
+                    }
+                    if (actionsRow) {
+                        if (count > 0) {
+                            actionsRow.removeAttribute('style');
+                        } else {
+                            actionsRow.setAttribute('style', 'display: none !important;');
+                        }
+                    }
+                }).catch(err => console.log("Error checking notification count", err));
+        }
+
+        function fetchNotificationsDropdown() {
+            const container = document.getElementById('notificationDropdownItems');
+            if (!container) return;
+            
+            fetch('/api/notifications/unread')
+                .then(response => {
+                    if (response.status === 401) return [];
+                    return response.json();
+                })
+                .then(list => {
+                    container.innerHTML = '';
+                    if (list.length === 0) {
+                        container.innerHTML = '<li class="p-4 text-center text-muted">No new notifications</li>';
+                        return;
+                    }
+                    
+                    list.forEach(n => {
+                        let iconClass = 'bi-bell-fill text-primary bg-primary-subtle';
+                        if (n.type === 'APPOINTMENT') iconClass = 'bi-calendar-check-fill text-primary bg-primary-subtle';
+                        else if (n.type === 'PRESCRIPTION') iconClass = 'bi-capsule-fill text-success bg-success-subtle';
+                        else if (n.type === 'ACCOUNT') iconClass = 'bi-person-fill-lock text-info bg-info-subtle';
+                        else if (n.type === 'MEDICAL') iconClass = 'bi-file-earmark-medical-fill text-warning bg-warning-subtle';
+                        else if (n.type === 'SYSTEM') iconClass = 'bi-exclamation-triangle-fill text-danger bg-danger-subtle';
+                        
+                        const date = new Date(n.createdAt);
+                        const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                        
+                        const li = document.createElement('li');
+                        li.className = 'border-bottom';
+                        li.innerHTML = `
+                            <a class="dropdown-item p-3 text-wrap d-flex gap-3 align-items-start" href="#" onclick="markNotificationReadDropdown(${n.id}, event)">
+                                <div class="rounded-circle p-2 d-flex align-items-center justify-content-center text-center" style="width: 32px; height: 32px; flex-shrink: 0; font-size: 14px; background-color: rgba(0, 0, 0, 0.05);">
+                                    <i class="bi ${iconClass.split(' ')[0]} ${iconClass.split(' ')[1]}"></i>
+                                </div>
+                                <div class="flex-grow-1" style="min-width: 0;">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="fw-bold text-dark text-truncate" style="max-width: 150px;">${n.title}</span>
+                                        <small class="text-muted" style="font-size: 11px; flex-shrink: 0;">${timeStr}</small>
+                                    </div>
+                                    <div class="text-muted small text-truncate" style="max-width: 220px;">${n.message}</div>
+                                </div>
+                            </a>
+                        `;
+                        container.appendChild(li);
+                    });
+                }).catch(err => {
+                    container.innerHTML = '<li class="p-4 text-center text-danger">Failed to load notifications</li>';
+                });
+        }
+
+        function markNotificationReadDropdown(id, event) {
+            event.preventDefault();
+            event.stopPropagation();
+            fetch('/api/notifications/mark-read/' + id, { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        updateNotificationCount();
+                        fetchNotificationsDropdown();
+                    }
+                });
+        }
+
+        function markAllNotificationsReadDropdown(event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            fetch('/api/notifications/mark-all-read', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        updateNotificationCount();
+                        fetchNotificationsDropdown();
+                    }
+                });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            updateNotificationCount();
+            setInterval(updateNotificationCount, 10000);
         });
     </script>
 </body>

@@ -11,4 +11,5 @@ public interface ConsultationRepository extends JpaRepository<Consultation, Long
     List<Consultation> findByPatientIdOrderByCreatedDateDesc(Long patientId);
     List<Consultation> findByDoctorIdOrderByCreatedDateDesc(Long doctorId);
     Optional<Consultation> findByAppointmentId(Long appointmentId);
+    long countByDoctorId(Long doctorId);
 }

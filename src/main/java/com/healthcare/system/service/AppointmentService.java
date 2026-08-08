@@ -50,8 +50,16 @@ public class AppointmentService {
         return appointmentRepository.count();
     }
 
+    public long getPendingCount() {
+        return appointmentRepository.countByStatus("PENDING");
+    }
+
+    public long getApprovedCount() {
+        return appointmentRepository.countByStatus("APPROVED");
+    }
+
     public long getScheduledCount() {
-        return appointmentRepository.countByStatus("SCHEDULED");
+        return appointmentRepository.countByStatus("PENDING") + appointmentRepository.countByStatus("APPROVED");
     }
 
     public long getCompletedCount() {

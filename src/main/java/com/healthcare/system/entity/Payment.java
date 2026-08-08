@@ -36,4 +36,7 @@ public class Payment {
 
     @Column(length = 30)
     private String paymentMethod; // CARD, CASH, INSURANCE, UPI
+
+    @Column(length = 50)
+    private String transactionId;
 }

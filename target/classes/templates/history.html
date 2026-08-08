@@ -43,8 +43,8 @@
                             <td th:text="${appt.notes}">Regular Checkup</td>
                             <td>
                                 <span class="status-pill" 
-                                      th:classappend="${appt.status == 'SCHEDULED' ? 'status-pill-scheduled' : (appt.status == 'COMPLETED' ? 'status-pill-completed' : 'status-pill-cancelled')}" 
-                                      th:text="${appt.status}">SCHEDULED</span>
+                                      th:classappend="${appt.status == 'PENDING' ? 'status-pill-pending' : (appt.status == 'APPROVED' ? 'status-pill-approved' : (appt.status == 'COMPLETED' ? 'status-pill-completed' : 'status-pill-cancelled'))}" 
+                                      th:text="${appt.status}">PENDING</span>
                             </td>
                         </tr>
                         <tr th:if="${#lists.isEmpty(appointments)}">

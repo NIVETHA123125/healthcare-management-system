@@ -35,17 +35,19 @@
                             <span class="input-group-text bg-white text-muted"><i class="bi bi-envelope"></i></span>
                             <input type="email" id="email" th:field="*{email}" class="form-control" placeholder="g.house@caregrid.com" required autocomplete="email">
                         </div>
+                        <div class="text-danger small mt-1" id="emailError" th:if="${emailError}" th:text="${emailError}"></div>
                     </div>
                     <div class="col-md-6">
                         <label for="phone" class="form-label fw-semibold text-muted small">Phone Number</label>
                         <div class="input-group">
                             <span class="input-group-text bg-white text-muted"><i class="bi bi-telephone"></i></span>
-                            <input type="text" id="phone" th:field="*{phone}" class="form-control" placeholder="e.g. +1 (555) 100-2000" autocomplete="tel">
+                            <input type="text" id="phone" th:field="*{phone}" class="form-control" placeholder="e.g. 9876543210" autocomplete="tel">
                         </div>
+                        <div class="text-danger small mt-1" id="phoneError" th:if="${phoneError}" th:text="${phoneError}"></div>
                     </div>
                 </div>
 
-                <div class="row g-3 mb-4">
+                <div class="row g-3 mb-3">
                     <div class="col-md-6">
                         <label for="specialization" class="form-label fw-semibold text-muted small">Specialization</label>
                         <div class="input-group">
@@ -62,6 +64,69 @@
                     </div>
                 </div>
 
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label for="gender" class="form-label fw-semibold text-muted small">Gender</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white text-muted"><i class="bi bi-gender-ambiguous"></i></span>
+                            <select id="gender" th:field="*{gender}" class="form-select" required>
+                                <option value="" disabled selected>Select Gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="qualification" class="form-label fw-semibold text-muted small">Qualification</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white text-muted"><i class="bi bi-mortarboard"></i></span>
+                            <input type="text" id="qualification" th:field="*{qualification}" class="form-control" placeholder="e.g. MBBS, MD, PhD" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <label for="experience" class="form-label fw-semibold text-muted small">Experience (Years)</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white text-muted"><i class="bi bi-briefcase"></i></span>
+                            <input type="number" id="experience" th:field="*{experience}" class="form-control" placeholder="e.g. 5" min="0" required>
+                        </div>
+                        <div class="text-danger small mt-1" id="experienceError" th:if="${experienceError}" th:text="${experienceError}"></div>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="consultationFee" class="form-label fw-semibold text-muted small">Consultation Fee ($)</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white text-muted"><i class="bi bi-cash-stack"></i></span>
+                            <input type="number" step="0.01" id="consultationFee" th:field="*{consultationFee}" class="form-control" placeholder="e.g. 100.00">
+                        </div>
+                        <div class="text-danger small mt-1" id="consultationFeeError" th:if="${consultationFeeError}" th:text="${consultationFeeError}"></div>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="availabilityStatus" class="form-label fw-semibold text-muted small">Availability Status</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white text-muted"><i class="bi bi-info-circle"></i></span>
+                            <select id="availabilityStatus" th:field="*{availabilityStatus}" class="form-select" required>
+                                <option value="" disabled selected>Select Status</option>
+                                <option value="Available">Available</option>
+                                <option value="Unavailable">Unavailable</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Password Field (Only for new doctors) -->
+                <div class="row g-3 mb-4" th:if="${doctor.id == null}">
+                    <div class="col-md-12">
+                        <label for="password" class="form-label fw-semibold text-muted small">Login Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white text-muted"><i class="bi bi-lock"></i></span>
+                            <input type="password" id="password" name="password" class="form-control" placeholder="Set a password for the doctor (default: Doctor@123)" autocomplete="new-password">
+                        </div>
+                    </div>
+                </div>
+
                 <div class="d-flex gap-2 pt-3 border-top border-light">
                     <button type="submit" class="btn btn-primary px-4 py-2" style="border-radius: 8px;">Save Doctor</button>
                     <a th:href="@{/doctors}" class="btn btn-outline-secondary px-4 py-2" style="border-radius: 8px;">Cancel</a>
@@ -69,5 +134,59 @@
             </form>
         </div>
     </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            if (form) {
+                form.addEventListener('submit', function(event) {
+                    // Clear previous errors
+                    document.querySelectorAll('.text-danger.small').forEach(el => el.textContent = '');
+
+                    let hasErrors = false;
+
+                    const email = document.getElementById('email').value.trim();
+                    const phone = document.getElementById('phone').value.trim();
+                    const experience = document.getElementById('experience').value;
+                    const consultationFee = document.getElementById('consultationFee').value;
+
+                    // Email validation
+                    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                    if (!emailRegex.test(email)) {
+                        const err = document.getElementById('emailError');
+                        if (err) err.textContent = 'Please enter a valid email address.';
+                        hasErrors = true;
+                    }
+
+                    // Phone validation
+                    const phoneRegex = /^[6-9]\d{9}$/;
+                    if (!phoneRegex.test(phone)) {
+                        const err = document.getElementById('phoneError');
+                        if (err) err.textContent = 'Please enter a valid 10-digit phone number.';
+                        hasErrors = true;
+                    }
+
+                    // Experience validation
+                    if (experience !== '' && parseInt(experience) < 0) {
+                        const err = document.getElementById('experienceError');
+                        if (err) err.textContent = 'Experience cannot be negative.';
+                        hasErrors = true;
+                    }
+
+                    // Consultation Fee validation
+                    if (consultationFee !== '' && parseFloat(consultationFee) < 0) {
+                        const err = document.getElementById('consultationFeeError');
+                        if (err) err.textContent = 'Consultation Fee cannot be negative.';
+                        hasErrors = true;
+                    }
+
+                    if (hasErrors) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>

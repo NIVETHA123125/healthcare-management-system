@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(content=~{::#prescription-form-content}, headerTitle=${pageTitle})}">
+<body>
+    <div id="prescription-form-content">
+        <div class="card border-0 shadow-sm max-width-800 mx-auto" style="max-width: 800px;">
+            <div class="d-flex align-items-center gap-2 border-bottom border-light pb-3 mb-4">
+                <i class="bi bi-file-earmark-plus-fill text-primary fs-4"></i>
+                <h3 class="mb-0 fs-5 fw-bold" style="text-transform: none; color: var(--medical-dark);">New Medical Prescription</h3>
+            </div>
+            
+            <form th:action="@{/prescriptions/save}" th:object="${prescription}" method="POST" class="needs-validation" novalidate>
+                <div class="row g-3 mb-3">
+                    <!-- Patient Select -->
+                    <div class="col-md-6">
+                        <label for="patientId" class="form-label fw-semibold text-muted small">Select Patient</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white text-muted"><i class="bi bi-person"></i></span>
+                            <select id="patientId" name="patientId" class="form-select" required>
+                                <option value="" disabled th:selected="${selectedPatientId == null}">Choose a Patient</option>
+                                <option th:each="patient : ${patients}" 
+                                        th:value="${patient.id}" 
+                                        th:text="${patient.fullName + ' (ID: ' + patient.id + ')'}"
+                                        th:selected="${patient.id == selectedPatientId}">John Doe</option>
+                            </select>
+                        </div>
+                        <div class="text-danger small mt-2" th:if="${#lists.isEmpty(patients)}">
+                            <i class="bi bi-exclamation-circle-fill"></i> No patients found. Please <a th:href="@{/patients/add}" class="fw-semibold">register a patient</a> first.
+                        </div>
+                    </div>
+
+                    <!-- Doctor Select -->
+                    <div class="col-md-6">
+                        <label for="doctorId" class="form-label fw-semibold text-muted small">Select Doctor</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white text-muted"><i class="bi bi-heart-pulse"></i></span>
+                            <select id="doctorId" name="doctorId" class="form-select" required>
+                                <option value="" disabled th:selected="${selectedDoctorId == null}">Choose a Doctor</option>
+                                <option th:each="doctor : ${doctors}" 
+                                        th:value="${doctor.id}" 
+                                        th:text="${'Dr. ' + doctor.fullName + ' - ' + doctor.specialization}"
+                                        th:selected="${doctor.id == selectedDoctorId}">Dr. House</option>
+                            </select>
+                        </div>
+                        <div class="text-danger small mt-2" th:if="${#lists.isEmpty(doctors)}">
+                            <i class="bi bi-exclamation-circle-fill"></i> No doctors found. Please <a th:href="@{/doctors/add}" class="fw-semibold">register a doctor</a> first.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <!-- Medication name -->
+                    <div class="col-md-12">
+                        <label for="medication" class="form-label fw-semibold text-muted small">Medication / Medicine Name</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white text-muted"><i class="bi bi-capsule"></i></span>
+                            <input type="text" id="medication" th:field="*{medication}" class="form-control" placeholder="e.g. Paracetamol 500mg, Amoxicillin 250mg" required>
+                        </div>
+                        <div class="text-danger small mt-1" id="medicationError" th:if="${medicationError}" th:text="${medicationError}"></div>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <!-- Dosage -->
+                    <div class="col-md-6">
+                        <label for="dosage" class="form-label fw-semibold text-muted small">Dosage Instructions</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white text-muted"><i class="bi bi-hash"></i></span>
+                            <input type="text" id="dosage" th:field="*{dosage}" class="form-control" placeholder="e.g. 1-0-1 (Once Morning, Once Night)" required>
+                        </div>
+                        <div class="text-danger small mt-1" id="dosageError" th:if="${dosageError}" th:text="${dosageError}"></div>
+                    </div>
+
+                    <!-- Duration -->
+                    <div class="col-md-6">
+                        <label for="duration" class="form-label fw-semibold text-muted small">Duration</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white text-muted"><i class="bi bi-clock"></i></span>
+                            <input type="text" id="duration" th:field="*{duration}" class="form-control" placeholder="e.g. 5 Days, 1 Month" required>
+                        </div>
+                        <div class="text-danger small mt-1" id="durationError" th:if="${durationError}" th:text="${durationError}"></div>
+                    </div>
+                </div>
+
+                <!-- Custom Instructions -->
+                <div class="mb-4">
+                    <label for="instructions" class="form-label fw-semibold text-muted small">Additional / Special Instructions</label>
+                    <textarea id="instructions" th:field="*{instructions}" class="form-control" placeholder="e.g. Take after food, avoid cold water..." rows="3" style="resize: none;"></textarea>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="d-flex gap-2 pt-3 border-top border-light">
+                    <button type="submit" class="btn btn-primary px-4 py-2" style="border-radius: 8px;" th:disabled="${#lists.isEmpty(patients) || #lists.isEmpty(doctors)}">Save Prescription</button>
+                    <a th:href="@{/prescriptions}" class="btn btn-outline-secondary px-4 py-2" style="border-radius: 8px;">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Client-Side Form Validations -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            if (form) {
+                form.addEventListener('submit', function(event) {
+                    // Clear previous errors
+                    const medErr = document.getElementById('medicationError');
+                    const dosErr = document.getElementById('dosageError');
+                    const durErr = document.getElementById('durationError');
+                    
+                    if (medErr) medErr.textContent = '';
+                    if (dosErr) dosErr.textContent = '';
+                    if (durErr) durErr.textContent = '';
+
+                    let hasErrors = false;
+
+                    const medication = document.getElementById('medication').value.trim();
+                    const dosage = document.getElementById('dosage').value.trim();
+                    const duration = document.getElementById('duration').value.trim();
+
+                    if (!medication) {
+                        if (medErr) medErr.textContent = 'Medication name cannot be empty.';
+                        hasErrors = true;
+                    }
+
+                    if (!dosage) {
+                        if (dosErr) dosErr.textContent = 'Dosage instructions cannot be empty.';
+                        hasErrors = true;
+                    }
+
+                    if (!duration) {
+                        if (durErr) durErr.textContent = 'Duration cannot be empty.';
+                        hasErrors = true;
+                    }
+
+                    if (hasErrors) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

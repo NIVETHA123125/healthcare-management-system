@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register Patient Account - CareGrid Healthcare</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" th:href="@{/favicon.png}">
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
@@ -38,16 +40,31 @@
             <div class="row g-3">
                 <div class="col-md-6 mb-1">
                     <label for="fullName" class="form-label-custom">Full Name</label>
-                    <div class="input-group-custom">
-                        <input type="text" id="fullName" name="fullName" class="form-control-custom" placeholder="e.g. Nivetha Vivek" required autocomplete="name">
+                    <div class="input-group-custom mb-1">
+                        <input type="text" id="fullName" name="fullName" th:value="${fullName}" class="form-control-custom" placeholder="e.g. Nivetha Vivek" required autocomplete="name">
                         <i class="bi bi-person input-icon"></i>
                     </div>
+                    <div class="text-danger small mb-2" id="fullNameError" th:if="${fullNameError}" th:text="${fullNameError}"></div>
                 </div>
                 <div class="col-md-6 mb-1">
                     <label for="email" class="form-label-custom">Email Address</label>
-                    <div class="input-group-custom">
-                        <input type="email" id="email" name="email" class="form-control-custom" placeholder="name@example.com" required autocomplete="email">
-                        <i class="bi bi-envelope input-icon"></i>
+                    <div class="input-group mb-1">
+                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-envelope"></i></span>
+                        <input type="email" id="email" name="email" th:value="${email}" class="form-control border-start-0" placeholder="name@example.com" required autocomplete="email">
+                        <button class="btn btn-outline-primary" type="button" id="btnSendOtp" style="z-index: 10;">Send OTP</button>
+                    </div>
+                    <div class="text-danger small mb-2" id="emailError" th:if="${emailError}" th:text="${emailError}"></div>
+                    
+                    <div id="otpSection" class="d-none mt-2">
+                        <label for="otp" class="form-label-custom">Enter OTP</label>
+                        <div class="input-group mb-1">
+                            <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-key"></i></span>
+                            <input type="text" id="otp" class="form-control border-start-0" placeholder="6-digit OTP">
+                            <button class="btn btn-outline-success" type="button" id="btnVerifyOtp">Verify</button>
+                        </div>
+                        <div class="text-danger small mb-2" id="otpError"></div>
+                        <div class="text-success small mb-2 d-none" id="otpSuccess">Email verified successfully!</div>
+                        <input type="hidden" id="isEmailVerified" value="false">
                     </div>
                 </div>
             </div>
@@ -56,58 +73,64 @@
             <div class="row g-3">
                 <div class="col-md-6 mb-1">
                     <label for="phone" class="form-label-custom">Phone Number</label>
-                    <div class="input-group-custom">
-                        <input type="text" id="phone" name="phone" class="form-control-custom" placeholder="e.g. +91 9876543210" required autocomplete="tel">
+                    <div class="input-group-custom mb-1">
+                        <input type="text" id="phone" name="phone" th:value="${phone}" class="form-control-custom" placeholder="e.g. 9876543210" required autocomplete="tel">
                         <i class="bi bi-telephone input-icon"></i>
                     </div>
+                    <div class="text-danger small mb-2" id="phoneError" th:if="${phoneError}" th:text="${phoneError}"></div>
                 </div>
                 <div class="col-md-6 mb-1">
                     <label for="dob" class="form-label-custom">Date of Birth</label>
-                    <div class="input-group-custom">
-                        <input type="date" id="dob" name="dob" class="form-control-custom" required>
+                    <div class="input-group-custom mb-1">
+                        <input type="date" id="dob" name="dob" th:value="${dob}" class="form-control-custom" required>
                         <i class="bi bi-calendar-event input-icon"></i>
                     </div>
+                    <div class="text-danger small mb-2" id="dobError"></div>
                 </div>
             </div>
 
             <!-- Gender Selector -->
             <div class="mb-3">
                 <label for="gender" class="form-label-custom">Gender</label>
-                <div class="input-group-custom">
+                <div class="input-group-custom mb-1">
                     <select id="gender" name="gender" class="form-control-custom form-select ps-5" required style="padding-left: 42px;">
-                        <option value="" disabled selected>Select Gender</option>
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                        <option value="Other">Other</option>
+                        <option value="" disabled th:selected="${gender == null}">Select Gender</option>
+                        <option value="Male" th:selected="${gender == 'Male'}">Male</option>
+                        <option value="Female" th:selected="${gender == 'Female'}">Female</option>
+                        <option value="Other" th:selected="${gender == 'Other'}">Other</option>
                     </select>
                     <i class="bi bi-gender-ambiguous input-icon"></i>
                 </div>
+                <div class="text-danger small mb-2" id="genderError"></div>
             </div>
 
             <!-- Residential Address -->
             <div class="mb-3">
                 <label for="address" class="form-label-custom">Residential Address</label>
-                <div class="input-group-custom">
-                    <textarea id="address" name="address" class="form-control-custom" placeholder="Enter street address, city, state" rows="2" required style="padding-left: 42px; resize: none;"></textarea>
+                <div class="input-group-custom mb-1">
+                    <textarea id="address" name="address" class="form-control-custom" placeholder="Enter street address, city, state" rows="2" required style="padding-left: 42px; resize: none;" th:text="${address}"></textarea>
                     <i class="bi bi-geo-alt input-icon" style="top: 25px;"></i>
                 </div>
+                <div class="text-danger small mb-2" id="addressError"></div>
             </div>
 
             <!-- Password Row -->
             <div class="row g-3">
                 <div class="col-md-6 mb-2">
                     <label for="password" class="form-label-custom">Password</label>
-                    <div class="input-group-custom">
+                    <div class="input-group-custom mb-1">
                         <input type="password" id="password" name="password" class="form-control-custom" placeholder="••••••••" required autocomplete="new-password">
                         <i class="bi bi-lock input-icon"></i>
                     </div>
+                    <div class="text-danger small mb-2" id="passwordError" th:if="${passwordError}" th:text="${passwordError}"></div>
                 </div>
                 <div class="col-md-6 mb-2">
                     <label for="confirmPassword" class="form-label-custom">Confirm Password</label>
-                    <div class="input-group-custom">
+                    <div class="input-group-custom mb-1">
                         <input type="password" id="confirmPassword" name="confirmPassword" class="form-control-custom" placeholder="••••••••" required autocomplete="new-password">
                         <i class="bi bi-shield-lock input-icon"></i>
                     </div>
+                    <div class="text-danger small mb-2" id="confirmPasswordError" th:if="${confirmPasswordError}" th:text="${confirmPasswordError}"></div>
                 </div>
             </div>
 
@@ -126,13 +149,10 @@
         </div>
     </div>
 
-        </div>
-    </div>
-
     <!-- Bootstrap Bundle JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- Submit Spinner -->
+    <!-- Submit Spinner & Validations -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const registerForm = document.getElementById('registerForm');
@@ -140,12 +160,156 @@
 
             if (registerForm && submitBtn) {
                 registerForm.addEventListener('submit', function(event) {
+                    // Clear previous dynamic errors
+                    document.querySelectorAll('.text-danger.small').forEach(el => el.textContent = '');
+
+                    let hasErrors = false;
+                    const isEmailVerified = document.getElementById('isEmailVerified').value === 'true';
+
+                    const fullName = document.getElementById('fullName').value.trim();
+                    const email = document.getElementById('email').value.trim();
+                    const phone = document.getElementById('phone').value.trim();
+                    const dob = document.getElementById('dob').value;
+                    const address = document.getElementById('address').value.trim();
+                    const gender = document.getElementById('gender').value;
+                    const password = document.getElementById('password').value;
+                    const confirmPassword = document.getElementById('confirmPassword').value;
+
+                    if (!fullName) {
+                        document.getElementById('fullNameError').textContent = 'Name cannot be empty.';
+                        hasErrors = true;
+                    }
+
+                    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                    if (!emailRegex.test(email)) {
+                        document.getElementById('emailError').textContent = 'Please enter a valid email address.';
+                        hasErrors = true;
+                    } else if (!isEmailVerified) {
+                        document.getElementById('emailError').textContent = 'Please verify your email address with OTP.';
+                        hasErrors = true;
+                    }
+
+                    const phoneRegex = /^[6-9]\d{9}$/;
+                    if (!phoneRegex.test(phone)) {
+                        document.getElementById('phoneError').textContent = 'Please enter a valid 10-digit phone number.';
+                        hasErrors = true;
+                    }
+
+                    if (!dob) {
+                        document.getElementById('dobError').textContent = 'Date of birth is required.';
+                        hasErrors = true;
+                    }
+
+                    if (!gender) {
+                        document.getElementById('genderError').textContent = 'Gender selection is required.';
+                        hasErrors = true;
+                    }
+
+                    if (!address) {
+                        document.getElementById('addressError').textContent = 'Residential address is required.';
+                        hasErrors = true;
+                    }
+
+                    if (password.length < 8) {
+                        document.getElementById('passwordError').textContent = 'Password must have a minimum length of 8 characters.';
+                        hasErrors = true;
+                    }
+
+                    if (password !== confirmPassword) {
+                        document.getElementById('confirmPasswordError').textContent = 'Passwords do not match.';
+                        hasErrors = true;
+                    }
+
+                    if (hasErrors) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        return;
+                    }
+
                     if (registerForm.checkValidity()) {
                         submitBtn.classList.add('loading');
-                        submitBtn.disabled = true;
+                        setTimeout(() => {
+                            submitBtn.disabled = true;
+                        }, 0);
                     }
                 });
             }
+        });
+
+        // OTP Logic
+        document.getElementById('btnSendOtp').addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const email = document.getElementById('email').value.trim();
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!emailRegex.test(email)) {
+                document.getElementById('emailError').textContent = 'Please enter a valid email address first.';
+                return;
+            }
+            document.getElementById('emailError').textContent = '';
+            
+            const btn = this;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+            btn.disabled = true;
+
+            fetch('/api/otp/send?email=' + encodeURIComponent(email), {
+                method: 'POST'
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    document.getElementById('otpSection').classList.remove('d-none');
+                    btn.innerHTML = 'Sent';
+                    // Optional: Start cooldown timer
+                } else {
+                    document.getElementById('emailError').textContent = data.message || 'Failed to send OTP.';
+                    btn.innerHTML = 'Send OTP';
+                    btn.disabled = false;
+                }
+            })
+            .catch(err => {
+                document.getElementById('emailError').textContent = 'Error occurred. Try again.';
+                btn.innerHTML = 'Send OTP';
+                btn.disabled = false;
+            });
+        });
+
+        document.getElementById('btnVerifyOtp').addEventListener('click', function() {
+            const email = document.getElementById('email').value.trim();
+            const otp = document.getElementById('otp').value.trim();
+            
+            if(!otp) {
+                document.getElementById('otpError').textContent = 'Please enter OTP.';
+                return;
+            }
+            document.getElementById('otpError').textContent = '';
+            
+            const btn = this;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+            btn.disabled = true;
+
+            fetch('/api/otp/verify?email=' + encodeURIComponent(email) + '&otp=' + encodeURIComponent(otp), {
+                method: 'POST'
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    document.getElementById('otpSuccess').classList.remove('d-none');
+                    document.getElementById('otpSection').querySelector('.input-group').classList.add('d-none');
+                    document.getElementById('isEmailVerified').value = 'true';
+                    document.getElementById('email').readOnly = true;
+                    document.getElementById('btnSendOtp').classList.add('d-none');
+                } else {
+                    document.getElementById('otpError').textContent = data.message || 'Invalid OTP.';
+                    btn.innerHTML = 'Verify';
+                    btn.disabled = false;
+                }
+            })
+            .catch(err => {
+                document.getElementById('otpError').textContent = 'Error occurred. Try again.';
+                btn.innerHTML = 'Verify';
+                btn.disabled = false;
+            });
         });
     </script>
 </body>

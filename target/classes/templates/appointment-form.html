@@ -8,6 +8,12 @@
                 <h3 class="mb-0 fs-5 fw-bold" style="text-transform: none; color: var(--medical-dark);">New Appointment Booking</h3>
             </div>
             
+            <!-- Error Alert -->
+            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" role="alert" style="border-radius: 8px;">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i> <span th:text="${errorMessage}">Error!</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            
             <form th:action="@{/appointments/save}" method="POST" class="needs-validation" novalidate>
                 <div class="row g-3 mb-3">
                     <!-- Patient Dropdown selection -->
@@ -47,11 +53,20 @@
 
                 <div class="row g-3 mb-3">
                     <div class="col-md-6">
-                        <label for="appointmentDate" class="form-label fw-semibold text-muted small">Appointment Date & Time</label>
+                        <label for="appointmentDate" class="form-label fw-semibold text-muted small">Appointment Date</label>
                         <div class="input-group">
                             <span class="input-group-text bg-white text-muted"><i class="bi bi-calendar-event"></i></span>
-                            <input type="datetime-local" id="appointmentDate" name="appointmentDate" class="form-control" required>
+                            <input type="date" id="appointmentDate" name="appointmentDate" class="form-control" required>
                         </div>
+                        <div class="text-danger small mt-1" id="appointmentDateError"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="appointmentTime" class="form-label fw-semibold text-muted small">Appointment Time</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white text-muted"><i class="bi bi-clock"></i></span>
+                            <input type="time" id="appointmentTime" name="appointmentTime" class="form-control" required>
+                        </div>
+                        <div class="text-danger small mt-1" id="appointmentTimeError"></div>
                     </div>
                 </div>
 
@@ -67,5 +82,52 @@
             </form>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            if (form) {
+                form.addEventListener('submit', function(event) {
+                    // Clear previous errors
+                    document.getElementById('appointmentDateError').textContent = '';
+                    document.getElementById('appointmentTimeError').textContent = '';
+
+                    const dateVal = document.getElementById('appointmentDate').value;
+                    const timeVal = document.getElementById('appointmentTime').value;
+                    let hasErrors = false;
+
+                    if (!dateVal) {
+                        document.getElementById('appointmentDateError').textContent = 'Appointment date cannot be empty.';
+                        hasErrors = true;
+                    }
+                    if (!timeVal) {
+                        document.getElementById('appointmentTimeError').textContent = 'Appointment time cannot be empty.';
+                        hasErrors = true;
+                    }
+
+                    if (dateVal) {
+                        const parts = dateVal.split('-');
+                        const year = parseInt(parts[0], 10);
+                        const month = parseInt(parts[1], 10) - 1;
+                        const day = parseInt(parts[2], 10);
+                        const selectedDate = new Date(year, month, day);
+                        
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+                        
+                        if (selectedDate < today) {
+                            document.getElementById('appointmentDateError').textContent = 'Cannot book an appointment for a past date.';
+                            hasErrors = true;
+                        }
+                    }
+
+                    if (hasErrors) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(content=~{::#doctor-appts-content}, headerTitle='My Appointments')}">
+<body>
+    <div id="doctor-appts-content">
+        <!-- Search and Action Bar Card -->
+        <div class="card border-0 shadow-sm mb-4 p-3">
+            <form th:action="@{/doctor/appointments}" method="GET">
+                <div class="row g-3 align-items-center">
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0 text-muted">
+                                <i class="bi bi-search"></i>
+                            </span>
+                            <input type="text" name="search" th:value="${search}" placeholder="Search patient name, ID..." class="form-control border-start-0 ps-0" style="border-radius: 0 8px 8px 0; outline: none; box-shadow: none;">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <select name="status" class="form-select" style="border-radius: 8px;">
+                            <option value="">All Statuses</option>
+                            <option value="PENDING" th:selected="${status == 'PENDING'}">Pending</option>
+                            <option value="APPROVED" th:selected="${status == 'APPROVED'}">Approved</option>
+                            <option value="COMPLETED" th:selected="${status == 'COMPLETED'}">Completed</option>
+                            <option value="CANCELLED" th:selected="${status == 'CANCELLED'}">Cancelled</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="date" name="date" th:value="${date}" class="form-control" style="border-radius: 8px;">
+                    </div>
+                    <div class="col-md-2 d-flex gap-2 justify-content-md-end">
+                        <button type="submit" class="btn btn-primary px-3" style="border-radius: 8px;">Filter</button>
+                        <a th:href="@{/doctor/appointments}" class="btn btn-outline-secondary px-3" style="border-radius: 8px;">Clear</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Tabs Navigation -->
+        <ul class="nav nav-pills gap-2 mb-4 p-1 bg-light rounded border border-light-subtle max-width-fit-content" id="apptTabs" role="tablist" style="width: fit-content;">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active fw-semibold" id="today-tab" data-bs-toggle="tab" data-bs-target="#today-pane" type="button" role="tab" aria-controls="today-pane" aria-selected="true" style="border-radius: 6px; padding: 8px 20px;">
+                    Today's Schedule
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-semibold" id="upcoming-tab" data-bs-toggle="tab" data-bs-target="#upcoming-pane" type="button" role="tab" aria-controls="upcoming-pane" aria-selected="false" style="border-radius: 6px; padding: 8px 20px;">
+                    Upcoming Appointments
+                </button>
+            </li>
+        </ul>
+
+        <!-- Tab Panes Content -->
+        <div class="tab-content" id="apptTabsContent">
+            <!-- Pane 1: Today's Appointments -->
+            <div class="tab-pane fade show active" id="today-pane" role="tabpanel" aria-labelledby="today-tab" tabindex="0">
+                <div class="card border-0 shadow-sm p-0 overflow-hidden">
+                    <div class="px-4 py-3 border-bottom border-light bg-light d-flex align-items-center gap-2">
+                        <i class="bi bi-clock-fill text-primary"></i>
+                        <span class="text-uppercase fw-bold fs-7 text-muted tracking-wider">Scheduled Today</span>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Patient</th>
+                                    <th>Contact</th>
+                                    <th>Gender</th>
+                                    <th>Status</th>
+                                    <th>Reason for Visit</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="appt : ${todayAppointments}">
+                                    <td class="font-mono fw-bold text-dark" th:text="${#temporals.format(appt.appointmentDate, 'hh:mm a')}">10:00 AM</td>
+                                    <td class="fw-bold" th:text="${appt.patient.fullName}">Patient Name</td>
+                                    <td th:text="${appt.patient.phone}">9876543210</td>
+                                    <td th:text="${appt.patient.gender}">Male</td>
+                                    <td>
+                                        <span class="badge" th:classappend="${
+                                            appt.status == 'APPROVED' ? 'bg-success-subtle text-success border border-success-subtle' :
+                                            appt.status == 'COMPLETED' ? 'bg-primary-subtle text-primary border border-primary-subtle' :
+                                            appt.status == 'PENDING' ? 'bg-warning-subtle text-warning border border-warning-subtle' :
+                                            'bg-danger-subtle text-danger border border-danger-subtle'
+                                        }" th:text="${appt.status}">PENDING</span>
+                                    </td>
+                                    <td class="text-muted small" th:text="${appt.notes}">Flu symptoms</td>
+                                    <td>
+                                        <div class="d-flex gap-2">
+                                            <!-- Approve pending appointments -->
+                                            <a th:if="${appt.status == 'PENDING'}" th:href="@{/doctor/appointments/approve/{id}(id=${appt.id})}" class="btn btn-sm btn-success py-1 px-2 fw-semibold" style="font-size: 12px; border-radius: 6px;">
+                                                <i class="bi bi-hand-thumbs-up-fill me-1"></i> Approve
+                                            </a>
+                                            
+                                            <!-- Assess approved appointments -->
+                                            <a th:if="${appt.status == 'APPROVED'}" th:href="@{/consultations/add(appointmentId=${appt.id})}" class="btn btn-sm btn-primary py-1 px-2 fw-semibold" style="font-size: 12px; border-radius: 6px;">
+                                                <i class="bi bi-heart-pulse-fill me-1"></i> Assess
+                                            </a>
+                                            
+                                            <!-- Cancel pending or approved appointments -->
+                                            <a th:if="${appt.status == 'PENDING' || appt.status == 'APPROVED'}" th:href="@{/doctor/appointments/cancel/{id}(id=${appt.id})}" class="btn btn-sm btn-outline-danger py-1 px-2 fw-semibold" style="font-size: 12px; border-radius: 6px;" onclick="return confirm('Are you sure you want to cancel this appointment?');">
+                                                <i class="bi bi-x-circle me-1"></i> Cancel
+                                            </a>
+                                            
+                                            <a th:href="@{/doctor/patients/records/{id}(id=${appt.patient.id})}" class="btn btn-sm btn-outline-secondary py-1 px-2 fw-semibold" style="font-size: 12px; border-radius: 6px;">
+                                                <i class="bi bi-clipboard2-pulse me-1"></i> Records
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(todayAppointments)}">
+                                    <td colspan="7" class="text-center py-5">
+                                        <i class="bi bi-calendar-x fs-1 text-muted mb-3 d-block"></i>
+                                        <p class="text-muted mb-0">No records found.</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pane 2: Upcoming Appointments -->
+            <div class="tab-pane fade" id="upcoming-pane" role="tabpanel" aria-labelledby="upcoming-tab" tabindex="0">
+                <div class="card border-0 shadow-sm p-0 overflow-hidden">
+                    <div class="px-4 py-3 border-bottom border-light bg-light d-flex align-items-center gap-2">
+                        <i class="bi bi-calendar-event text-primary"></i>
+                        <span class="text-uppercase fw-bold fs-7 text-muted tracking-wider">Future Bookings</span>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Date & Time</th>
+                                    <th>Patient</th>
+                                    <th>Contact</th>
+                                    <th>Gender</th>
+                                    <th>Status</th>
+                                    <th>Reason for Visit</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="appt : ${upcomingAppointments}">
+                                    <td class="font-mono text-dark fw-bold" th:text="${#temporals.format(appt.appointmentDate, 'yyyy-MM-dd hh:mm a')}">2026-07-02 11:00 AM</td>
+                                    <td class="fw-bold" th:text="${appt.patient.fullName}">Patient Name</td>
+                                    <td th:text="${appt.patient.phone}">9876543210</td>
+                                    <td th:text="${appt.patient.gender}">Female</td>
+                                    <td>
+                                        <span class="badge" th:classappend="${
+                                            appt.status == 'APPROVED' ? 'bg-success-subtle text-success border border-success-subtle' :
+                                            appt.status == 'COMPLETED' ? 'bg-primary-subtle text-primary border border-primary-subtle' :
+                                            appt.status == 'PENDING' ? 'bg-warning-subtle text-warning border border-warning-subtle' :
+                                            'bg-danger-subtle text-danger border border-danger-subtle'
+                                        }" th:text="${appt.status}">PENDING</span>
+                                    </td>
+                                    <td class="text-muted small" th:text="${appt.notes}">Checkup</td>
+                                    <td>
+                                        <div class="d-flex gap-2">
+                                            <!-- Approve pending appointments -->
+                                            <a th:if="${appt.status == 'PENDING'}" th:href="@{/doctor/appointments/approve/{id}(id=${appt.id})}" class="btn btn-sm btn-success py-1 px-2 fw-semibold" style="font-size: 12px; border-radius: 6px;">
+                                                <i class="bi bi-hand-thumbs-up-fill me-1"></i> Approve
+                                            </a>
+                                            
+                                            <!-- Assess approved appointments -->
+                                            <a th:if="${appt.status == 'APPROVED'}" th:href="@{/consultations/add(appointmentId=${appt.id})}" class="btn btn-sm btn-primary py-1 px-2 fw-semibold" style="font-size: 12px; border-radius: 6px;">
+                                                <i class="bi bi-heart-pulse-fill me-1"></i> Assess
+                                            </a>
+                                            
+                                            <!-- Cancel pending or approved appointments -->
+                                            <a th:if="${appt.status == 'PENDING' || appt.status == 'APPROVED'}" th:href="@{/doctor/appointments/cancel/{id}(id=${appt.id})}" class="btn btn-sm btn-outline-danger py-1 px-2 fw-semibold" style="font-size: 12px; border-radius: 6px;" onclick="return confirm('Are you sure you want to cancel this appointment?');">
+                                                <i class="bi bi-x-circle me-1"></i> Cancel
+                                            </a>
+                                            
+                                            <a th:href="@{/doctor/patients/records/{id}(id=${appt.patient.id})}" class="btn btn-sm btn-outline-secondary py-1 px-2 fw-semibold" style="font-size: 12px; border-radius: 6px;">
+                                                <i class="bi bi-clipboard2-pulse me-1"></i> Records
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(upcomingAppointments)}">
+                                    <td colspan="7" class="text-center py-5">
+                                        <i class="bi bi-calendar-x fs-1 text-muted mb-3 d-block"></i>
+                                        <p class="text-muted mb-0">No records found.</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
