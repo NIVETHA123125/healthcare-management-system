@@ -32,9 +32,9 @@ public class DataSourceConfig {
         String isRender = System.getenv("RENDER");
         
         if ("true".equals(isRender) && (mysqlHost == null || mysqlHost.isEmpty())) {
-            // Fallback to H2 database for smooth zero-config deployment on Render
+            // Fallback to in-memory H2 database for smooth zero-config deployment on Render
             dataSourceBuilder.driverClassName("org.h2.Driver");
-            dataSourceBuilder.url("jdbc:h2:file:./data/healthcare_db;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL");
+            dataSourceBuilder.url("jdbc:h2:mem:healthcare_db;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL");
             dataSourceBuilder.username("sa");
             dataSourceBuilder.password("");
         } else {
