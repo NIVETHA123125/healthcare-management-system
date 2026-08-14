@@ -1,5 +1,6 @@
 package com.healthcare.system.service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -14,6 +15,9 @@ public class EmailService {
 
     @Autowired(required = false)
     private JavaMailSender mailSender;
+
+    @Value("${spring.mail.username:mynew222028@gmail.com}")
+    private String mailFrom;
 
     public void sendEmail(String to, String subject, String contentHtml) {
         // Output a beautiful console log
@@ -36,12 +40,13 @@ public class EmailService {
             helper.setTo(to);
             helper.setSubject(subject);
             helper.setText(contentHtml, true);
-            helper.setFrom("mynew222028@gmail.com");
+            helper.setFrom(mailFrom != null && !mailFrom.isEmpty() ? mailFrom : "mynew222028@gmail.com");
             mailSender.send(message);
             logger.info("Email sent successfully to " + to);
         } catch (Exception e) {
             logger.warning("Failed to send real email to " + to + " via SMTP: " + e.getMessage() + ". Logged to console instead.");
             e.printStackTrace();
+            throw new RuntimeException("SMTP email dispatch failed: " + e.getMessage(), e);
         }
     }
 

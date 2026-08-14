@@ -233,84 +233,110 @@
                         }, 0);
                     }
                 });
-            }
-        });
+        // OTP Logic inside DOMContentLoaded
+        const btnSendOtp = document.getElementById('btnSendOtp');
+        const btnVerifyOtp = document.getElementById('btnVerifyOtp');
+        let cooldownInterval = null;
 
-        // OTP Logic
-        document.getElementById('btnSendOtp').addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            const email = document.getElementById('email').value.trim();
-            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-            if (!emailRegex.test(email)) {
-                document.getElementById('emailError').textContent = 'Please enter a valid email address first.';
-                return;
-            }
-            document.getElementById('emailError').textContent = '';
+        function startOtpCooldown(durationSeconds) {
+            let timer = durationSeconds;
+            btnSendOtp.disabled = true;
+            btnSendOtp.innerHTML = `Resend (${timer}s)`;
             
-            const btn = this;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
-            btn.disabled = true;
-
-            fetch('/api/otp/send?email=' + encodeURIComponent(email), {
-                method: 'POST'
-            })
-            .then(res => res.json())
-            .then(data => {
-                if(data.success) {
-                    document.getElementById('otpSection').classList.remove('d-none');
-                    btn.innerHTML = 'Sent';
-                    // Optional: Start cooldown timer
+            if (cooldownInterval) clearInterval(cooldownInterval);
+            cooldownInterval = setInterval(() => {
+                timer--;
+                if (timer <= 0) {
+                    clearInterval(cooldownInterval);
+                    btnSendOtp.disabled = false;
+                    btnSendOtp.innerHTML = 'Resend OTP';
                 } else {
-                    document.getElementById('emailError').textContent = data.message || 'Failed to send OTP.';
+                    btnSendOtp.innerHTML = `Resend (${timer}s)`;
+                }
+            }, 1000);
+        }
+
+        if (btnSendOtp) {
+            btnSendOtp.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const email = document.getElementById('email').value.trim();
+                const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                if (!emailRegex.test(email)) {
+                    document.getElementById('emailError').textContent = 'Please enter a valid email address first.';
+                    return;
+                }
+                document.getElementById('emailError').textContent = '';
+                
+                const btn = this;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+                btn.disabled = true;
+
+                fetch('/api/otp/send?email=' + encodeURIComponent(email), {
+                    method: 'POST'
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success) {
+                        document.getElementById('otpSection').classList.remove('d-none');
+                        startOtpCooldown(30);
+                    } else {
+                        document.getElementById('emailError').textContent = data.message || 'Failed to send OTP.';
+                        btn.innerHTML = 'Send OTP';
+                        btn.disabled = false;
+                    }
+                })
+                .catch(err => {
+                    document.getElementById('emailError').textContent = 'Error occurred. Please check network connection.';
                     btn.innerHTML = 'Send OTP';
                     btn.disabled = false;
-                }
-            })
-            .catch(err => {
-                document.getElementById('emailError').textContent = 'Error occurred. Try again.';
-                btn.innerHTML = 'Send OTP';
-                btn.disabled = false;
+                });
             });
-        });
+        }
 
-        document.getElementById('btnVerifyOtp').addEventListener('click', function() {
-            const email = document.getElementById('email').value.trim();
-            const otp = document.getElementById('otp').value.trim();
-            
-            if(!otp) {
-                document.getElementById('otpError').textContent = 'Please enter OTP.';
-                return;
-            }
-            document.getElementById('otpError').textContent = '';
-            
-            const btn = this;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
-            btn.disabled = true;
+        if (btnVerifyOtp) {
+            btnVerifyOtp.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const email = document.getElementById('email').value.trim();
+                const otp = document.getElementById('otp').value.trim();
+                
+                if(!otp) {
+                    document.getElementById('otpError').textContent = 'Please enter OTP.';
+                    return;
+                }
+                document.getElementById('otpError').textContent = '';
+                
+                const btn = this;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+                btn.disabled = true;
 
-            fetch('/api/otp/verify?email=' + encodeURIComponent(email) + '&otp=' + encodeURIComponent(otp), {
-                method: 'POST'
-            })
-            .then(res => res.json())
-            .then(data => {
-                if(data.success) {
-                    document.getElementById('otpSuccess').classList.remove('d-none');
-                    document.getElementById('otpSection').querySelector('.input-group').classList.add('d-none');
-                    document.getElementById('isEmailVerified').value = 'true';
-                    document.getElementById('email').readOnly = true;
-                    document.getElementById('btnSendOtp').classList.add('d-none');
-                } else {
-                    document.getElementById('otpError').textContent = data.message || 'Invalid OTP.';
+                fetch('/api/otp/verify?email=' + encodeURIComponent(email) + '&otp=' + encodeURIComponent(otp), {
+                    method: 'POST'
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success) {
+                        document.getElementById('otpSuccess').classList.remove('d-none');
+                        document.getElementById('otpSection').querySelector('.input-group').classList.add('d-none');
+                        document.getElementById('isEmailVerified').value = 'true';
+                        document.getElementById('email').readOnly = true;
+                        if (cooldownInterval) clearInterval(cooldownInterval);
+                        btnSendOtp.classList.add('d-none');
+                    } else {
+                        document.getElementById('otpError').textContent = data.message || 'Invalid OTP.';
+                        btn.innerHTML = 'Verify';
+                        btn.disabled = false;
+                    }
+                })
+                .catch(err => {
+                    document.getElementById('otpError').textContent = 'Error occurred. Try again.';
                     btn.innerHTML = 'Verify';
                     btn.disabled = false;
-                }
-            })
-            .catch(err => {
-                document.getElementById('otpError').textContent = 'Error occurred. Try again.';
-                btn.innerHTML = 'Verify';
-                btn.disabled = false;
+                });
             });
-        });
+        }
+    });
     </script>
 </body>
 </html>

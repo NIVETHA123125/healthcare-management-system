@@ -49,9 +49,12 @@ public class OtpService {
 
         otpRepository.save(otpEntity);
                 
-        emailService.sendOtpEmail(email, rawOtp);
-
-        return new OtpResponse(true, "OTP sent successfully.");
+        try {
+            emailService.sendOtpEmail(email, rawOtp);
+            return new OtpResponse(true, "OTP sent successfully to " + email);
+        } catch (Exception e) {
+            return new OtpResponse(false, "Failed to send email via SMTP: " + e.getMessage());
+        }
     }
 
     @Transactional
