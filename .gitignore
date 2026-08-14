@@ -34,4 +34,6 @@ target/
 Thumbs.db
 db.properties
 .env
+data/
+cookies*.txt
 .gemini/

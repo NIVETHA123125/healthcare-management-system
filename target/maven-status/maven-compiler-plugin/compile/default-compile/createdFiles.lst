@@ -6,6 +6,7 @@ com\healthcare\system\repository\DoctorRepository.class
 com\healthcare\system\repository\PatientRepository.class
 com\healthcare\system\controller\OtpController.class
 com\healthcare\system\repository\PrescriptionRepository.class
+com\healthcare\system\config\DataSourceConfig.class
 com\healthcare\system\config\ReminderScheduler.class
 com\healthcare\system\config\LocaleConfig.class
 com\healthcare\system\service\UserService.class
